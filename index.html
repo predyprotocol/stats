@@ -318,18 +318,19 @@
             },
             BigNumber(0)
           )
-          const accumulatedPremiumSupply =
+          const accumulatedPremiumBorrow =
             data.data.lprevenueDailies.reduce((acc, revenue) => {
-              return acc.plus(revenue.premiumSupply)
+              return acc.plus(revenue.premiumBorrow)
             }, BigNumber(0))
 
           const feeEarned = accumulatedFee0
             .times("1900000000")
             .div("1e18")
             .plus(accumulatedFee1)
-            .plus(accumulatedPremiumSupply)
 
-          updateText('trade-fee', (feeEarned.div("1e18").toNumber() / 1000000).toFixed(2))
+          updateText('trade-fee-eth', (accumulatedFee0.div("1e34").toNumber() / 100).toFixed(2) + 'ETH')
+          updateText('trade-fee-usdc', (accumulatedFee1.div("1e18").toNumber() / 1000000).toFixed(0) + 'USDC')
+          updateText('premium', (accumulatedPremiumBorrow.div("1e18").toNumber() / 1000000).toFixed(0) + 'USDC')
         })
       })
 
@@ -348,8 +349,8 @@
           updateText('oi-short-perp', Number(BigInt(oi.shortPerp) / (10n ** 16n)) / 100)
           updateText('oi-long-perp', Number(BigInt(oi.longPerp) / (10n ** 16n)) / 100)
 
-          updateText('oi-short-squart', Number(BigInt(oi.shortSquart) / (10n ** 12n)))
-          updateText('oi-long-squart', Number(BigInt(oi.longSquart) / (10n ** 12n)))
+          updateText('oi-short-squart', Number(BigInt(oi.shortSquart) * 2n / (10n ** 12n)))
+          updateText('oi-long-squart', Number(BigInt(oi.longSquart) * 2n / (10n ** 12n)))
         })
       })
 
@@ -892,13 +893,13 @@
             stroke-dasharray="0" />
         </g>
         <g id=" _5">
-          <rect x="571" y="285.5" width="60" height="31" rx="1.5" fill="white" />
-          <text id="Fee_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="16"
+          <rect x="570" y="285.5" width="61" height="58" rx="1.5" fill="white" />
+          <text id="Fee_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="10"
             letter-spacing="0em">
-            <tspan id='trade-fee' x="578.5" y="307">0</tspan>
-
+            <tspan id='trade-fee-eth' x="577.5" y="307">0</tspan>
+            <tspan id='trade-fee-usdc' x="577.5" y="327">0</tspan>
           </text>
-          <rect x="571" y="285.5" width="60" height="31" rx="1.5" stroke="black" stroke-width="3"
+          <rect x="570" y="285.5" width="61" height="58" rx="1.5" stroke="black" stroke-width="3"
             stroke-dasharray="0" />
         </g>
         <g id=" _6">
@@ -929,17 +930,17 @@
             stroke-dasharray="0" />
         </g>
         <g id=" _9">
-          <rect x="797" y="165.5" width="57" height="31" rx="1.5" fill="white" />
-          <text id="Fee_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="18"
+          <rect x="797" y="165.5" width="58" height="31" rx="1.5" fill="white" />
+          <text id="Fee_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="10"
             letter-spacing="0em">
-            <tspan x="804.5" y="187.545">Fee</tspan>
+            <tspan id='premium' x="802" y="187.545">Fee</tspan>
           </text>
           <g id="Frame_8" opacity="0.8">
             <path id="Vector_13"
               d="M841 170C837.962 170 835.5 172.462 835.5 175.5C835.5 178.538 837.962 181 841 181C844.038 181 846.5 178.538 846.5 175.5C846.5 172.462 844.038 170 841 170ZM841 179.969C838.536 179.969 836.531 177.964 836.531 175.5C836.531 173.036 838.536 171.031 841 171.031C843.464 171.031 845.469 173.036 845.469 175.5C845.469 177.964 843.464 179.969 841 179.969ZM841 177.219C840.613 177.219 840.312 177.52 840.312 177.906C840.312 178.293 840.594 178.594 841 178.594C841.367 178.594 841.688 178.293 841.688 177.906C841.688 177.52 841.367 177.219 841 177.219ZM841.711 172.75H840.613C839.775 172.75 839.109 173.416 839.109 174.254C839.109 174.533 839.346 174.77 839.625 174.77C839.904 174.77 840.141 174.533 840.141 174.254C840.141 173.996 840.336 173.781 840.594 173.781H841.692C841.969 173.781 842.203 173.996 842.203 174.254C842.203 174.426 842.117 174.557 841.967 174.643L840.742 175.393C840.57 175.5 840.484 175.672 840.484 175.844V176.188C840.484 176.467 840.721 176.703 841 176.703C841.279 176.703 841.516 176.467 841.516 176.188V176.145L842.485 175.543C842.936 175.264 843.215 174.77 843.215 174.254C843.234 173.416 842.568 172.75 841.711 172.75Z"
               fill="black" fill-opacity="0.5" />
           </g>
-          <rect x="797" y="165.5" width="57" height="31" rx="1.5" stroke="black" stroke-width="3"
+          <rect x="797" y="165.5" width="58" height="31" rx="1.5" stroke="black" stroke-width="3"
             stroke-dasharray="0" />
         </g>
         <g id="Construction worker --&#62; Frame 427318650">
