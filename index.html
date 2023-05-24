@@ -333,6 +333,26 @@
         })
       })
 
+      const bodyOI = {
+        variables: {},
+        query: "query ($owner: String) {\n  openInterestTotal(id: \"0x68a154fb3e8ff6e4da10ecd54def25d9149ddbde-2\") {\n    id\n longSquart\n longPerp\n shortSquart\n shortPerp\n}\n}",
+      }
+
+      fetch(
+        "https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum",
+        { method: "POST", body: JSON.stringify(bodyOI) }
+      ).then((res) => {
+        res.json().then((data) => {
+          const oi = data.data.openInterestTotal
+
+          updateText('oi-short-perp', Number(BigInt(oi.shortPerp) / (10n ** 16n)) / 100)
+          updateText('oi-long-perp', Number(BigInt(oi.longPerp) / (10n ** 16n)) / 100)
+
+          updateText('oi-short-squart', Number(BigInt(oi.shortSquart) / (10n ** 12n)))
+          updateText('oi-long-squart', Number(BigInt(oi.longSquart) / (10n ** 12n)))
+        })
+      })
+
       const asset1 = await contract.getAsset(1)
       const asset2 = await contract.getAsset(2)
 
@@ -340,9 +360,15 @@
       const totalNormalDeposited = asset1[4][2]
       const assetScaler = asset1[4][4]
 
+      const totalCompoundDeposited2 = asset2[4][0]
+      const totalNormalDeposited2 = asset2[4][2]
+      const assetScaler2 = asset2[4][4]
+
       const supply1 = Number((totalCompoundDeposited * assetScaler / (10n ** 18n) + totalNormalDeposited) / (10n ** 4n)) / 100
+      const supply2 = Number((totalCompoundDeposited2 * assetScaler2 / (10n ** 18n) + totalNormalDeposited2) / (10n ** 16n)) / 100
 
       updateText('usdc-supply-text', supply1)
+      updateText('eth-supply-text', supply2)
     }
 
     function updateText(id, value) {
@@ -531,7 +557,7 @@
                   </text>
                   <text id="XX_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Nunito"
                     font-size="10" letter-spacing="0em">
-                    <tspan x="965.496" y="228.79">XX</tspan>
+                    <tspan id="oi-short-squart" x="965.496" y="228.79">XX</tspan>
                   </text>
                 </g>
               </g>
@@ -543,7 +569,7 @@
                   </text>
                   <text id="XX_4" fill="black" xml:space="preserve" style="white-space: pre" font-family="Nunito"
                     font-size="10" letter-spacing="0em">
-                    <tspan x="965.496" y="244.79">XX</tspan>
+                    <tspan id="oi-long-perp" x="965.496" y="244.79">XX</tspan>
                   </text>
                 </g>
               </g>
@@ -586,7 +612,7 @@
                   </text>
                   <text id="XX_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Nunito"
                     font-size="10" letter-spacing="0em">
-                    <tspan x="701.496" y="228.79">XX</tspan>
+                    <tspan id="oi-long-squart" x="701.496" y="228.79">XX</tspan>
                   </text>
                 </g>
               </g>
@@ -598,7 +624,7 @@
                   </text>
                   <text id="XX_6" fill="black" xml:space="preserve" style="white-space: pre" font-family="Nunito"
                     font-size="10" letter-spacing="0em">
-                    <tspan x="701.496" y="244.79">XX</tspan>
+                    <tspan id="oi-short-perp" x="701.496" y="244.79">XX</tspan>
                   </text>
                 </g>
               </g>
@@ -703,7 +729,7 @@
               </text>
               <text id="XXX_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Nunito"
                 font-size="10" letter-spacing="0em">
-                <tspan x="349.744" y="205.29">XXX</tspan>
+                <tspan id="eth-supply-text" x="349.744" y="205.29">XXX</tspan>
               </text>
             </g>
             <g id="Group 2">
