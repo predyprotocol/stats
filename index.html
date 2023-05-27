@@ -353,27 +353,70 @@
         })
       })
 
+      await loadLendingPool()
+    }
+
+    async function loadLendingPool() {
       const asset1 = await contract.getAsset(1)
       const asset2 = await contract.getAsset(2)
 
       const totalCompoundDeposited = asset1[4][0]
       const totalNormalDeposited = asset1[4][2]
+      const totalNormalBorrowed = asset1[4][3]
       const assetScaler = asset1[4][4]
 
       const totalCompoundDeposited2 = asset2[4][0]
       const totalNormalDeposited2 = asset2[4][2]
+      const totalNormalBorrowed2 = asset2[4][3]
       const assetScaler2 = asset2[4][4]
 
-      const supply1 = Number((totalCompoundDeposited * assetScaler / (10n ** 18n) + totalNormalDeposited) / (10n ** 6n))
-      const supply2 = Number((totalCompoundDeposited2 * assetScaler2 / (10n ** 18n) + totalNormalDeposited2) / (10n ** 16n)) / 100
+      const supply1 = (totalCompoundDeposited * assetScaler / (10n ** 18n) + totalNormalDeposited) / (10n ** 6n)
+      const supply2 = (totalCompoundDeposited2 * assetScaler2 / (10n ** 18n) + totalNormalDeposited2) / (10n ** 16n)
+      const borrow1 = totalNormalBorrowed / (10n ** 6n)
+      const borrow2 = totalNormalBorrowed2 / (10n ** 16n)
 
-      updateText('usdc-supply-text', supply1.toLocaleString())
-      updateText('eth-supply-text', supply2)
+      const ur1 = borrow1 * (10n ** 18n) / supply1
+      const ur2 = borrow2 * (10n ** 18n) / supply2
+
+      const irm1 = asset1[7]
+      const irm2 = asset2[7]
+
+      updateText('usdc-supply-text', Number(supply1).toLocaleString())
+      updateText('eth-supply-text', Number(supply2) / 100)
+
+      updateText('usdc-apr-text', (Number(calculateSupplyAPR(irm1, ur1) / (10n ** 14n)) / 100).toFixed(2) + '%')
+      updateText('eth-apr-text', (Number(calculateSupplyAPR(irm2, ur2) / (10n ** 14n)) / 100).toFixed(2) + '%')
+
+      updateText('usdc-ur-text', Number(ur1 / (10n ** 16n)).toFixed(1) + '%')
+      updateText('eth-ur-text', Number(ur2 / (10n ** 16n)).toFixed(1) + '%')
     }
 
     function updateText(id, value) {
       const usdcSupplyTextElem = document.getElementById(id)
       usdcSupplyTextElem.innerHTML = value.toString()
+    }
+
+    function calculateSupplyAPR(params, ur) {
+      return calculateInterestRate(params, ur) * ur / (10n ** 18n)
+    }
+
+    function calculateInterestRate(params, ur) {
+      const ONE = (10n ** 18n)
+
+      if (ur < 0) {
+        throw new Error('utilization ratio must be positive value.')
+      }
+
+      let ir = params[0]
+
+      if (ur <= params[1]) {
+        ir = ir + (ur * params[2]) / ONE
+      } else {
+        ir = ir + (params[1] * (params[2]) / ONE)
+        ir = ir + (params[3] * (ur - params[1]) / ONE)
+      }
+
+      return ir
     }
   </script>
   <style>
@@ -478,21 +521,21 @@
           <g id="Frame 5">
             <text id="APR" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="350" y="281.545" text-anchor="end">APR</tspan>
+              <tspan x="360" y="281.545" text-anchor="end">APR</tspan>
             </text>
             <text id="eth-apr-value" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="450" y="280.227" text-anchor="end">00.0%</tspan>
+              <tspan id="eth-apr-text" x="450" y="280.227" text-anchor="end">00.0%</tspan>
             </text>
           </g>
           <g id="Frame 6">
             <text id="UTIL." fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="350" y="318.545" text-anchor="end">UTIL.</tspan>
+              <tspan x="360" y="318.545" text-anchor="end">UTIL.</tspan>
             </text>
             <text id="00.0%_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="450" y="317.227" text-anchor="end">00.0%</tspan>
+              <tspan id="eth-ur-text" x="450" y="317.227" text-anchor="end">00.0%</tspan>
             </text>
           </g>
           <rect x="190" y="107" width="178" height="221" rx="8" stroke="#848E9C" stroke-width="2"
@@ -738,7 +781,7 @@
             </text>
             <text id="00.0%_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="450" y="520.227" text-anchor="end">00.0%</tspan>
+              <tspan id="usdc-apr-text" x="450" y="520.227" text-anchor="end">00.0%</tspan>
             </text>
           </g>
           <g id="Frame 6_6">
@@ -748,7 +791,7 @@
             </text>
             <text id="00%" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="450" y="557.227" text-anchor="end">00.0%</tspan>
+              <tspan id="usdc-ur-text" x="450" y="557.227" text-anchor="end">00.0%</tspan>
             </text>
           </g>
           <rect x="190" y="347" width="178" height="221" rx="8" stroke="#848E9C" stroke-width="2"
@@ -958,6 +1001,11 @@
             <tspan x="1007" y="374.273">Long</tspan>
           </text>
           <rect x="999" y="350" width="68" height="34" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
+        </g>
+        <g>
+          <image href="./img/nice.png" x="772" y="315" />
+          <image href="./img/dune.svg" x="860" y="20" width="100" />
+          <image href="./img/defillama-dark.svg" x="980" y="20" width="100" />
         </g>
       </g>
       <defs>
