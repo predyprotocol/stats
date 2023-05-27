@@ -17,6 +17,9 @@
     import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.3.0/ethers.min.js";
     import "https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/8.0.2/bignumber.min.js"
 
+    const PREDY_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum"
+    const UNISWAP_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal"
+
     const abi = [{
       "inputs": [
         {
@@ -303,7 +306,7 @@
       }
 
       fetch(
-        "https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum",
+        PREDY_SUBGRAPH_ENDPOINT,
         { method: "POST", body: JSON.stringify(body) }
       ).then((res) => {
         res.json().then((data) => {
@@ -341,7 +344,7 @@
       }
 
       fetch(
-        "https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum",
+        PREDY_SUBGRAPH_ENDPOINT,
         { method: "POST", body: JSON.stringify(bodyOI) }
       ).then((res) => {
         res.json().then((data) => {
@@ -355,7 +358,35 @@
         })
       })
 
+      const bodyUniswap = {
+        operationName: 'poolDayDatas',
+        query: "query poolDayDatas($skip: Int!, $address: Bytes!) {\n  poolDayDatas(\n    first: 1\n    skip: $skip\n    where: {pool: $address}\n    orderBy: date\n    orderDirection: desc\n    subgraphError: allow\n  ) {\n    date\n    volumeUSD\n    tvlUSD\n    feesUSD\n    pool {\n      feeTier\n      __typename\n    }\n    __typename\n  }\n}\n",
+        variables: { address: "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443", skip: 0 }
+      }
+
+      fetch(
+        UNISWAP_SUBGRAPH_ENDPOINT,
+        { method: "POST", body: JSON.stringify(bodyUniswap) }
+      ).then((res) => {
+        res.json().then((data) => {
+          const poolDayDatas = data.data.poolDayDatas
+
+          updateText('uni-tvl', convertNotionalToString(Number(poolDayDatas[0].tvlUSD)))
+          updateText('uni-vol', convertNotionalToString(Number(poolDayDatas[0].volumeUSD)))
+          updateText('uni-fee', convertNotionalToString(Number(poolDayDatas[0].feesUSD)))
+
+        })
+      })
+
       await loadLendingPool()
+    }
+
+    function convertNotionalToString(value) {
+      if (value > 1000000) {
+        return (value / 1000000).toFixed(2) + 'm'
+      } else if (value > 1000) {
+        return (value / 1000).toFixed(2) + 'k'
+      }
     }
 
     async function loadLendingPool() {
@@ -383,7 +414,7 @@
       const irm1 = asset1[7]
       const irm2 = asset2[7]
 
-      updateText('usdc-supply-text', Number(supply1).toLocaleString())
+      updateText('usdc-supply-text', convertNotionalToString(Number(supply1)))
       updateText('eth-supply-text', Number(supply2) / 100)
 
       updateText('usdc-apr-text', (Number(calculateSupplyAPR(irm1, ur1) / (10n ** 14n)) / 100).toFixed(2) + '%')
@@ -792,31 +823,31 @@
           <g id="Frame 5_5">
             <text id="TVL_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="607.5" y="549.227">TVL</tspan>
+              <tspan x="720" y="549.227" text-anchor="end">TVL</tspan>
             </text>
             <text id="XXX_8" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="661.5" y="549.227">XXX</tspan>
+              <tspan id="uni-tvl" x="820" y="549.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 7_2">
             <text id="Fee" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="609.5" y="586.227">Fee</tspan>
+              <tspan x="720" y="586.227" text-anchor="end">Fee</tspan>
             </text>
             <text id="XXX_9" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="659.5" y="586.227">XXX</tspan>
+              <tspan id="uni-fee" x="820" y="586.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 8">
             <text id="Vol." fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="609.5" y="623.227">Vol.</tspan>
+              <tspan x="720" y="623.227" text-anchor="end">Vol.</tspan>
             </text>
             <text id="XXX_10" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="659.5" y="623.227">XXX</tspan>
+              <tspan id="uni-vol" x="820" y="623.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 6_5">
@@ -826,7 +857,7 @@
             </text>
             <text id="XXX_11" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="650" y="660.227">XXX</tspan>
+              <tspan id="uni-iv" x="650" y="660.227">XXX</tspan>
             </text>
           </g>
           <rect x="572" y="413" width="172" height="258" rx="8" stroke="#848E9C" stroke-width="2"
