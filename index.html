@@ -353,8 +353,8 @@
           updateText('oi-short-perp', Number(BigInt(oi.shortPerp) / (10n ** 16n)) / 100)
           updateText('oi-long-perp', Number(BigInt(oi.longPerp) / (10n ** 16n)) / 100)
 
-          updateText('oi-short-squart', Number(BigInt(oi.shortSquart) * 2n / (10n ** 12n)))
-          updateText('oi-long-squart', Number(BigInt(oi.longSquart) * 2n / (10n ** 12n)))
+          updateText('oi-short-squart', convertNotionalToString(Number(BigInt(oi.shortSquart) * 2n / (10n ** 12n))))
+          updateText('oi-long-squart', convertNotionalToString(Number(BigInt(oi.longSquart) * 2n / (10n ** 12n))))
         })
       })
 
@@ -371,9 +371,9 @@
         res.json().then((data) => {
           const poolDayDatas = data.data.poolDayDatas
 
-          updateText('uni-tvl', convertNotionalToString(Number(poolDayDatas[0].tvlUSD)))
-          updateText('uni-vol', convertNotionalToString(Number(poolDayDatas[0].volumeUSD)))
-          updateText('uni-fee', convertNotionalToString(Number(poolDayDatas[0].feesUSD)))
+          updateText('uni-tvl', '$' + convertNotionalToString(Number(poolDayDatas[0].tvlUSD)))
+          updateText('uni-vol', '$' + convertNotionalToString(Number(poolDayDatas[0].volumeUSD)))
+          updateText('uni-fee', '$' + convertNotionalToString(Number(poolDayDatas[0].feesUSD)))
 
         })
       })
@@ -823,31 +823,31 @@
           <g id="Frame 5_5">
             <text id="TVL_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="720" y="549.227" text-anchor="end">TVL</tspan>
+              <tspan x="716" y="549.227" text-anchor="end">TVL</tspan>
             </text>
             <text id="XXX_8" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan id="uni-tvl" x="820" y="549.227" text-anchor="end">XXX</tspan>
+              <tspan id="uni-tvl" x="822" y="549.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 7_2">
             <text id="Fee" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="720" y="586.227" text-anchor="end">Fee</tspan>
+              <tspan x="716" y="586.227" text-anchor="end">Fee</tspan>
             </text>
             <text id="XXX_9" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan id="uni-fee" x="820" y="586.227" text-anchor="end">XXX</tspan>
+              <tspan id="uni-fee" x="822" y="586.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 8">
             <text id="Vol." fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="720" y="623.227" text-anchor="end">Vol.</tspan>
+              <tspan x="716" y="623.227" text-anchor="end">Vol.</tspan>
             </text>
             <text id="XXX_10" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan id="uni-vol" x="820" y="623.227" text-anchor="end">XXX</tspan>
+              <tspan id="uni-vol" x="822" y="623.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 6_5">
