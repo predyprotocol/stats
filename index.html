@@ -372,9 +372,12 @@
         res.json().then((data) => {
           const poolDayDatas = data.data.poolDayDatas
 
+          const iv = Math.sqrt(Number(poolDayDatas[0].feesUSD) * 365 / Number(poolDayDatas[0].tvlUSD))
+
           updateText('uni-tvl', '$' + convertNotionalToString(Number(poolDayDatas[0].tvlUSD)))
           updateText('uni-vol', '$' + convertNotionalToString(Number(poolDayDatas[0].volumeUSD)))
           updateText('uni-fee', '$' + convertNotionalToString(Number(poolDayDatas[0].feesUSD)))
+          updateText('uni-iv', (iv * 100).toFixed(1) + '%')
 
         })
       })
@@ -864,11 +867,11 @@
           <g id="Frame 6_5">
             <text id="IV" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="619" y="660.227">IV</tspan>
+              <tspan x="716" y="660.227" text-anchor="end">IV</tspan>
             </text>
             <text id="XXX_11" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan id="uni-iv" x="650" y="660.227">XXX</tspan>
+              <tspan id="uni-iv" x="822" y="660.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <rect x="572" y="413" width="172" height="258" rx="8" stroke="#848E9C" stroke-width="2"
