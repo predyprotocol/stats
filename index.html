@@ -19,6 +19,7 @@
 
     const PREDY_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum"
     const UNISWAP_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal"
+    const DEFILLAMA_ENDPOINT = 'https://api.llama.fi/tvl/predy-finance'
 
     const abi = [{
       "inputs": [
@@ -375,6 +376,16 @@
           updateText('uni-vol', '$' + convertNotionalToString(Number(poolDayDatas[0].volumeUSD)))
           updateText('uni-fee', '$' + convertNotionalToString(Number(poolDayDatas[0].feesUSD)))
 
+        })
+      })
+
+      fetch(
+        DEFILLAMA_ENDPOINT,
+        { method: "GET" }
+      ).then((res) => {
+        res.json().then((data) => {
+          console.log(data)
+          updateText('predy-tvl', '$' + convertNotionalToString(Number(data)))
         })
       })
 
@@ -770,11 +781,11 @@
           <g id="Frame 7">
             <text id="TVL" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="981" y="549.227">TVL</tspan>
+              <tspan x="1090" y="549.227" text-anchor="end">TVL</tspan>
             </text>
             <text id="XXX_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan x="1035" y="549.227">XXX</tspan>
+              <tspan id="predy-tvl" x="1200" y="549.227" text-anchor="end">XXX</tspan>
             </text>
           </g>
           <g id="Frame 4_4">
