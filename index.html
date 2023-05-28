@@ -20,6 +20,7 @@
     const PREDY_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum"
     const UNISWAP_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal"
     const DEFILLAMA_ENDPOINT = 'https://api.llama.fi/tvl/predy-finance'
+    const PRICE_ENDPOINT = 'https://coins.llama.fi/prices/current/coingecko:usd-coin,coingecko:ethereum'
 
     const abi = [{
       "inputs": [
@@ -301,6 +302,14 @@
     await load()
 
     async function load() {
+      const priceResponce = await fetch(
+        PRICE_ENDPOINT,
+        { method: "GET" }
+      )
+      const prices = await priceResponce.json()
+      const ethPrice = prices.coins['coingecko:ethereum']
+      const usdcPrice = prices.coins['coingecko:usd-coin']
+
       const body = {
         variables: {},
         query: "query ($owner: String) {\n  lprevenueDailies(first: 30, orderBy: updatedAt, orderDirection: desc) {\n    id\n    fee0\n    fee1\n    premiumSupply\n    premiumBorrow\n      createdAt\n      updatedAt\n      __typename\n}\n}",
@@ -328,14 +337,19 @@
               return acc.plus(revenue.premiumBorrow)
             }, BigNumber(0))
 
-          const feeEarned = accumulatedFee0
-            .times("1900000000")
-            .div("1e18")
-            .plus(accumulatedFee1)
+          const tradeFeeEth = accumulatedFee0.times(ethPrice.price).div("1e36").toNumber()
+          const tradeFeeUsdc = accumulatedFee1.div("1e24").toNumber()
 
-          updateText('trade-fee-eth', (accumulatedFee0.div("1e34").toNumber() / 100).toFixed(2))
-          updateText('trade-fee-usdc', (accumulatedFee1.div("1e18").toNumber() / 1000000).toFixed(0))
-          updateText('premium', (accumulatedPremiumBorrow.div("1e18").toNumber() / 1000000).toFixed(0) + 'USDC')
+          console.log(tradeFeeEth, tradeFeeUsdc)
+
+
+          updateText('trade-fee', '$' + convertNotionalToString(
+            tradeFeeEth + tradeFeeUsdc
+          ))
+
+          updateText('premium', '$' + convertNotionalToString(
+            accumulatedPremiumBorrow.div("1e24").toNumber()
+          ))
         })
       })
 
@@ -400,6 +414,8 @@
         return (value / 1000000).toFixed(2) + 'm'
       } else if (value > 1000) {
         return (value / 1000).toFixed(2) + 'k'
+      } else {
+        return value.toFixed(2)
       }
     }
 
@@ -1016,35 +1032,20 @@
             fill="#848E9C" />
         </g>
         <g id=" _11">
-          <rect x="428.5" y="510.5" width="140" height="83" rx="2.5" fill="white" />
+          <rect x="428.5" y="510.5" width="140" height="60" rx="2.5" fill="white" />
           <g id="Frame 4_7">
             <text id="Fee_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="20" letter-spacing="0em">
-              <tspan x="437" y="535.273">Fee</tspan>
+              <tspan x="470" y="535.273">Fee</tspan>
             </text>
           </g>
           <g id="Frame 5_7">
             <text id="000" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="20"
               letter-spacing="0em">
-              <tspan id="trade-fee-eth" x="552" y="559.273" text-anchor="end">000</tspan>
-            </text>
-            <text id="ETH_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="20" letter-spacing="0em">
-              <tspan x="485" y="559.273">ETH</tspan>
+              <tspan id="trade-fee" x="620" y="559.273" text-anchor="end">000</tspan>
             </text>
           </g>
-          <g id="Frame 7_3">
-            <text id="000_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="20" letter-spacing="0em">
-              <tspan id="trade-fee-usdc" x="552" y="583.273" text-anchor="end">000</tspan>
-            </text>
-            <text id="USDC_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="20" letter-spacing="0em">
-              <tspan x="485" y="583.273">USDC</tspan>
-            </text>
-          </g>
-          <rect x="428.5" y="510.5" width="140" height="83" rx="2.5" stroke="#848E9C" stroke-width="2"
-            stroke-dasharray="0" />
+          <rect x="458.5" y="511.5" width="102" height="59" rx="2.5" stroke="#848E9C" stroke-dasharray="0" />
         </g>
         <g id="Frame 427318656 --&#62;  ">
           <path
@@ -1087,12 +1088,12 @@
           <rect x="803" y="515" width="68" height="34" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
         </g>
         <g id=" _13">
-          <rect x="778" y="200" width="137" height="34" rx="2" fill="white" />
+          <rect x="786" y="200" width="124" height="34" rx="2" fill="white" />
           <text id="premium-text" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
             font-size="20" letter-spacing="0em">
-            <tspan id="premium" x="786" y="224.273">0</tspan>
+            <tspan id="premium" x="932" y="224.273" text-anchor="end">0</tspan>
           </text>
-          <rect x="778" y="200" width="137" height="34" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
+          <rect x="786" y="200" width="124" height="34" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
         </g>
         <g id=" _14">
           <rect x="440" y="195" width="56" height="34" rx="2" fill="white" />
@@ -1125,7 +1126,7 @@
         </g>
         <g>
           <g class="popup" onclick="showPopup(1)">
-            <g>
+            <g transform="translate(40, 0)">
               <circle cx="481" cy="525" r="8" fill="white"></circle>
               <path id="Vector_12"
                 d="M481 516C476.029 516 472 520.029 472 525C472 529.971 476.029 534 481 534C485.971 534 490 529.971 490 525C490 520.029 485.971 516 481 516ZM481 532.312C476.968 532.312 473.688 529.032 473.688 525C473.688 520.968 476.968 517.688 481 517.688C485.032 517.688 488.312 520.968 488.312 525C488.312 529.032 485.032 532.312 481 532.312ZM481 527.812C480.367 527.812 479.875 528.305 479.875 528.938C479.875 529.57 480.336 530.062 481 530.062C481.601 530.062 482.125 529.57 482.125 528.938C482.125 528.305 481.601 527.812 481 527.812ZM482.164 520.5H480.367C478.996 520.5 477.906 521.59 477.906 522.961C477.906 523.418 478.293 523.805 478.75 523.805C479.207 523.805 479.594 523.418 479.594 522.961C479.594 522.539 479.914 522.188 480.336 522.188H482.132C482.586 522.188 482.969 522.539 482.969 522.961C482.969 523.242 482.828 523.457 482.582 523.597L480.578 524.824C480.297 525 480.156 525.281 480.156 525.562V526.125C480.156 526.582 480.543 526.969 481 526.969C481.457 526.969 481.844 526.582 481.844 526.125V526.055L483.429 525.07C484.168 524.613 484.625 523.805 484.625 522.961C484.656 521.59 483.566 520.5 482.164 520.5Z"
