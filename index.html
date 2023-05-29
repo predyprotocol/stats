@@ -298,6 +298,7 @@
     const contract = new ethers.Contract("0x68a154fB3e8ff6e4DA10ECd54DEF25D9149DDBDE", abi, provider)
 
     window.showPopup = showPopup
+    window.fadeOutPopup = fadeOutPopup
 
     await load()
 
@@ -339,9 +340,6 @@
 
           const tradeFeeEth = accumulatedFee0.times(ethPrice.price).div("1e36").toNumber()
           const tradeFeeUsdc = accumulatedFee1.div("1e24").toNumber()
-
-          console.log(tradeFeeEth, tradeFeeUsdc)
-
 
           updateText('trade-fee', '$' + convertNotionalToString(
             tradeFeeEth + tradeFeeUsdc
@@ -489,6 +487,19 @@
 
       popupWrapper.classList.toggle("show");
       popup.classList.toggle("show");
+    }
+
+    function fadeOutPopup(no) {
+      setTimeout(() => hidePopup(no), 500)
+    }
+
+
+    function hidePopup(no) {
+      const popupWrapper = document.getElementById(`popup${no}-wrapper`);
+      const popup = document.getElementById(`popup${no}-content`);
+
+      popupWrapper.classList.remove("show");
+      popup.classList.remove("show");
     }
   </script>
   <style>
@@ -781,7 +792,7 @@
             stroke-dasharray="0" />
         </g>
         <g id=" _6">
-          <rect x="946" y="413" width="171" height="258" rx="8" fill="white" />
+          <rect x="946" y="413" width="171" height="200" rx="8" fill="white" />
           <g id="Predy V3.2 AMM">
             <g id="Atom / Version number / 1_4">
               <rect x="956" y="424" width="151" height="20" rx="4" fill="#F1F4F9" />
@@ -800,40 +811,14 @@
           <g id="Frame 7">
             <text id="TVL" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="24"
               letter-spacing="0em">
-              <tspan x="1090" y="549.227" text-anchor="end">TVL</tspan>
+              <tspan x="1090" y="560" text-anchor="end">TVL</tspan>
             </text>
             <text id="XXX_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
               font-size="24" letter-spacing="0em">
-              <tspan id="predy-tvl" x="1200" y="549.227" text-anchor="end">XXX</tspan>
+              <tspan id="predy-tvl" x="1200" y="560" text-anchor="end">XXX</tspan>
             </text>
           </g>
-          <g id="Frame 4_4">
-            <text id="Available" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="24" letter-spacing="0em">
-              <tspan x="981" y="586.227">Available</tspan>
-            </text>
-          </g>
-          <g id="Frame 5_4">
-            <text id="&#226;&#136;&#154;ETH_3" fill="black" xml:space="preserve" style="white-space: pre"
-              font-family="Inter" font-size="24" letter-spacing="0em">
-              <tspan x="972.5" y="623.227">&#x221a;ETH</tspan>
-            </text>
-            <text id="XXX_6" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="24" letter-spacing="0em">
-              <tspan x="1043.5" y="623.227">XXX</tspan>
-            </text>
-          </g>
-          <g id="Frame 6_4">
-            <text id="ETH_4" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="24" letter-spacing="0em">
-              <tspan x="980" y="660.227">ETH</tspan>
-            </text>
-            <text id="XXX_7" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
-              font-size="24" letter-spacing="0em">
-              <tspan x="1036" y="660.227">XXX</tspan>
-            </text>
-          </g>
-          <rect x="946" y="413" width="171" height="258" rx="8" stroke="#848E9C" stroke-width="2"
+          <rect x="946" y="413" width="171" height="200" rx="8" stroke="#848E9C" stroke-width="2"
             stroke-dasharray="0" />
         </g>
         <g id=" _7">
@@ -1089,12 +1074,17 @@
           <rect x="803" y="515" width="68" height="34" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
         </g>
         <g id=" _13">
-          <rect x="786" y="200" width="124" height="34" rx="2" fill="white" />
+          <rect x="786" y="180" width="124" height="54" rx="2" fill="white" />
+          <text id="Fee_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="12"
+            letter-spacing="0em">
+            <tspan x="796" y="200">Monthly Fee</tspan>
+          </text>
+
           <text id="premium-text" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter"
             font-size="20" letter-spacing="0em">
-            <tspan id="premium" x="932" y="224.273" text-anchor="end">0</tspan>
+            <tspan id="premium" x="950" y="224.273" text-anchor="end">0</tspan>
           </text>
-          <rect x="786" y="200" width="124" height="34" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
+          <rect x="786" y="180" width="124" height="54" rx="2" stroke="#848E9C" stroke-width="2" stroke-dasharray="0" />
         </g>
         <g id=" _14">
           <rect x="440" y="195" width="56" height="34" rx="2" fill="white" />
@@ -1126,7 +1116,7 @@
           <image href="./img/defillama-dark.svg" x="980" y="20" width="100" />
         </g>
         <g>
-          <g class="popup" onclick="showPopup(1)">
+          <g class="popup" onclick="showPopup(1)" onmouseleave="fadeOutPopup(1)">
             <g transform="translate(64, 0)">
               <circle cx="481" cy="525" r="8" fill="white"></circle>
               <path id="Vector_12"
@@ -1141,7 +1131,7 @@
             </foreignObject>
           </g>
 
-          <g class="popup" onclick="showPopup(2)">
+          <g class="popup" onclick="showPopup(2)" onmouseleave="fadeOutPopup(2)">
             <g transform="translate(2, 0)">
               <circle cx="665" cy="364" r="8" fill="white"></circle>
               <path id="Vector_11"
@@ -1157,15 +1147,15 @@
             </foreignObject>
           </g>
 
-          <g class="popup" onclick="showPopup(3)">
-            <g transform="translate(-6, 0)">
+          <g class="popup" onclick="showPopup(3)" onmouseleave="fadeOutPopup(3)">
+            <g transform="translate(-6, -20)">
               <circle cx="899" cy="214" r="8" fill="white"></circle>
               <path id="Vector_13"
                 d="M899 205C894.029 205 890 209.029 890 214C890 218.971 894.029 223 899 223C903.971 223 908 218.971 908 214C908 209.029 903.971 205 899 205ZM899 221.312C894.968 221.312 891.688 218.032 891.688 214C891.688 209.968 894.968 206.688 899 206.688C903.032 206.688 906.312 209.968 906.312 214C906.312 218.032 903.032 221.312 899 221.312ZM899 216.812C898.367 216.812 897.875 217.305 897.875 217.938C897.875 218.57 898.336 219.062 899 219.062C899.601 219.062 900.125 218.57 900.125 217.938C900.125 217.305 899.601 216.812 899 216.812ZM900.164 209.5H898.367C896.996 209.5 895.906 210.59 895.906 211.961C895.906 212.418 896.293 212.805 896.75 212.805C897.207 212.805 897.594 212.418 897.594 211.961C897.594 211.539 897.914 211.188 898.336 211.188H900.132C900.586 211.188 900.969 211.539 900.969 211.961C900.969 212.242 900.828 212.457 900.582 212.597L898.578 213.824C898.297 214 898.156 214.281 898.156 214.562V215.125C898.156 215.582 898.543 215.969 899 215.969C899.457 215.969 899.844 215.582 899.844 215.125V215.055L901.429 214.07C902.168 213.613 902.625 212.805 902.625 211.961C902.656 210.59 901.566 209.5 900.164 209.5Z"
                 fill="black" fill-opacity="0.5" />
 
             </g>
-            <foreignObject id="popup3-wrapper" class="popup-wrapper" x="752" y="24" width="380" height="240">
+            <foreignObject id="popup3-wrapper" class="popup-wrapper" x="736" y="1" width="380" height="240">
               <div id="popup3-content" class="popuptext" xmlns="http://www.w3.org/1999/xhtml">
                 Predy Protocol calculates and pays Fee (Premium) optimized for Gamma Trade (Delta neutral position by
                 combining Squart and ETH) can be checked at XXX.
