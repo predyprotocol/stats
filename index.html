@@ -313,9 +313,14 @@
       const ethPrice = prices.coins['coingecko:ethereum']
       const usdcPrice = prices.coins['coingecko:usd-coin']
 
+      // 30 days before
+      const startTimestamp = Math.floor(((new Date().getTime()) - 60 * 60 * 24 * 30 * 1000) / 1000)
+
       const body = {
-        variables: {},
-        query: "query ($owner: String) {\n  lprevenueDailies(first: 30, orderBy: updatedAt, orderDirection: desc) {\n    id\n    fee0\n    fee1\n    premiumSupply\n    premiumBorrow\n      createdAt\n      updatedAt\n      __typename\n}\n}",
+        variables: {
+          start: startTimestamp
+        },
+        query: "query ($start: Int) {\n  lprevenueDailies(first: 30, where: {updatedAt_gt: $start}, orderBy: updatedAt, orderDirection: desc) {\n    id\n    fee0\n    fee1\n    premiumSupply\n    premiumBorrow\n supplyInterest0\n supplyInterest1 \n      createdAt\n      updatedAt\n      __typename\n}\n}",
       }
 
       fetch(
@@ -342,6 +347,25 @@
 
           const tradeFeeEth = accumulatedFee0.times(ethPrice.price).div("1e36").toNumber()
           const tradeFeeUsdc = accumulatedFee1.div("1e24").toNumber()
+
+          const supplyInterest0 = data.data.lprevenueDailies.reduce(
+            (acc, revenue) => {
+              return acc.plus(revenue.supplyInterest0)
+            },
+            BigNumber(0)
+          )
+          const supplyInterest1 = data.data.lprevenueDailies.reduce(
+            (acc, revenue) => {
+              return acc.plus(revenue.supplyInterest1)
+            },
+            BigNumber(0)
+          )
+
+          console.log(
+            supplyInterest0.div('1e24').toString(),
+            supplyInterest1.div('1e36').toString(),
+          )
+
 
           updateText('trade-fee', '$' + convertNotionalToString(
             tradeFeeEth + tradeFeeUsdc
