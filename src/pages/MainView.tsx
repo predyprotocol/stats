@@ -5,7 +5,7 @@ const MainView = () => {
   return (
     <>
       <div className="max-w-7xl mx-auto">
-        <div className='max-w-[1360px]'>
+        <div className="max-w-[1360px]">
           <StatsChart />
         </div>
       </div>

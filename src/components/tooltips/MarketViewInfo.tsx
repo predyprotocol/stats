@@ -5,8 +5,8 @@ const MarketViewInfo = () => {
   return (
     <InfoTooltip placement="top-end">
       <p className="text-center">
-        Predy finance creates positions to maximize profit at the
-        following price changes:
+        Predy finance creates positions to maximize profit at the following
+        price changes:
         <br />
         Down: -2.5
         <br />

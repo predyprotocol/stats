@@ -22,8 +22,8 @@ const useStore = create<State>(set => ({
   setAfterPerp: (afterPerp: BigNumber) => set({ afterPerp }),
   setAfterEntryUpdate: (afterEntryUpdate: BigNumber) =>
     set({ afterEntryUpdate }),
-  setAdditionalMargin: (additionalMargin: BigNumber) => set({ additionalMargin })
-}
-))
+  setAdditionalMargin: (additionalMargin: BigNumber) =>
+    set({ additionalMargin })
+}))
 
 export default useStore

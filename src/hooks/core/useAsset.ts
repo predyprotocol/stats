@@ -191,8 +191,8 @@ export function useUtilizationRatio(assetId: number) {
           utilization: sqrtAssetStatus.totalAmount.eq(0)
             ? ZERO
             : sqrtAssetStatus.borrowedAmount
-              .mul(ONE)
-              .div(sqrtAssetStatus.totalAmount)
+                .mul(ONE)
+                .div(sqrtAssetStatus.totalAmount)
         }
       }
     },

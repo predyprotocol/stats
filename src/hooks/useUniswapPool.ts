@@ -1,10 +1,10 @@
-import { useQuery } from "react-query"
-import { useDeltaTimestamps } from "../utils/time"
-import { useBlocksFromTimestamps } from "./core/useBlockFromTimestamp"
-import { usePrice } from "./core/usePrice"
-import { queryPoolDayData } from "./core/pool"
-import { toUnscaled } from "../utils/bn"
-import { Q96 } from "../constants"
+import { useQuery } from 'react-query'
+import { useDeltaTimestamps } from '../utils/time'
+import { useBlocksFromTimestamps } from './core/useBlockFromTimestamp'
+import { usePrice } from './core/usePrice'
+import { queryPoolDayData } from './core/pool'
+import { toUnscaled } from '../utils/bn'
+import { Q96 } from '../constants'
 
 export function useUniswapPool(assetId: number) {
   const deltaTimestamps = useDeltaTimestamps()

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Router, Route } from 'wouter'
+import { Router, Route, Redirect } from 'wouter'
 import MainView from './pages/MainView'
 import NetworkErrorLabel from './components/common/NetworkErrorLabel'
 import Header from './components/header/Header'
@@ -14,7 +14,10 @@ const App = () => {
         <Router>
           <Header />
           <div className="mx-auto mt-20">
-            <Route path="/" component={MainView} />
+            <Route path="/">
+              <Redirect to="/v320" />
+            </Route>
+            <Route path="/v320" component={MainView} />
           </div>
         </Router>
       </div>

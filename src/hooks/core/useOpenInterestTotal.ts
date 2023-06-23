@@ -2,7 +2,10 @@ import { useQuery } from '@apollo/client'
 import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
 import { predyArbitrum } from '../../utils/apollo-client'
-import { OPEN_INTEREST_TOTAL_QUERY, OpenInterestTotal } from '../../queries/openInterestQuery'
+import {
+  OPEN_INTEREST_TOTAL_QUERY,
+  OpenInterestTotal
+} from '../../queries/openInterestQuery'
 import { toUnscaled } from '../../utils/bn'
 
 export function useOpenInterest() {

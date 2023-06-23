@@ -65,9 +65,10 @@ export function convertNotionalToString(value: number) {
   }
 }
 
-
 export function roundMargin(pairGroupId: number, amount: BigNumber) {
-  const rounderScaler = BigNumber.from(10).pow(MARGIN_INFOS[pairGroupId].rounder)
+  const rounderScaler = BigNumber.from(10).pow(
+    MARGIN_INFOS[pairGroupId].rounder
+  )
 
   return amount.div(rounderScaler).mul(rounderScaler)
 }
