@@ -53,9 +53,7 @@ const Header = () => {
                     : 'text-subtext'
                 }`}
               >
-                <Link href="/v4" className="whitespace-nowrap">
-                  Version 4(Coming Soon)
-                </Link>
+                <div className="whitespace-nowrap">Version 4(Coming Soon)</div>
               </li>
             </ul>
           </div>
@@ -96,7 +94,9 @@ const Header = () => {
 
         <div className="flex items-center">
           <div>
-            <div className="px-1"></div>
+            <div className="pr-8 hidden md:block">
+              <a href="https://app.predy.finance">App</a>
+            </div>
           </div>
           <div>
             <div className="px-1"></div>

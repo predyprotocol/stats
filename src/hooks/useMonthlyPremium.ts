@@ -33,12 +33,11 @@ export function useMonthlyPremium(pairId: number) {
         .mul(price.data.price)
         .div(ONE)
         .div(ONE)
-        .toNumber()
-      const tradeFeeUsdc = accumulatedFee1.div(ONE).div('1000000').toNumber()
+      const tradeFeeUsdc = accumulatedFee1.div(ONE)
 
       return {
         premium: toUnscaled(accumulatedPremiumBorrow.div(ONE), 6),
-        tradeFee: tradeFeeEth + tradeFeeUsdc
+        tradeFee: toUnscaled(tradeFeeEth.add(tradeFeeUsdc), 6)
       }
     },
     {

@@ -6,6 +6,9 @@ import usdcIcon from '../assets/usdc.svg'
 import predyUserIcon from '../assets/predyuser.svg'
 import ethLenderIcon from '../assets/ethlender.svg'
 import usdcLenderIcon from '../assets/usdclender.svg'
+import defiLlamaIcon from '../assets/defillama-dark.svg'
+import duneIcon from '../assets/dune.svg'
+import niceIcon from '../assets/nice.png'
 import { useLendingPoolSummary } from '../hooks/useLendingPoolSummary'
 import { useUniswapPool } from '../hooks/useUniswapPool'
 import { convertNotionalToString } from '../utils'
@@ -15,6 +18,8 @@ import { useOpenInterest } from '../hooks/core/useOpenInterestTotal'
 import { usePredyTvl } from '../hooks/usePredyTvl'
 import { toUnscaled } from '../utils/bn'
 import { ZERO } from '../constants'
+
+const ROUNDED = 16
 
 type Point2D = { x: number; y: number }
 
@@ -56,8 +61,14 @@ function getD(points: Point2D[]) {
   if (points.length === 2) {
     return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`
   } else if (points.length === 3) {
-    const point01 = add(mul(normalize(sub(points[0], points[1])), 5), points[1])
-    const point21 = add(mul(normalize(sub(points[2], points[1])), 5), points[1])
+    const point01 = add(
+      mul(normalize(sub(points[0], points[1])), ROUNDED),
+      points[1]
+    )
+    const point21 = add(
+      mul(normalize(sub(points[2], points[1])), ROUNDED),
+      points[1]
+    )
 
     return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${
       points[1].x
@@ -65,10 +76,22 @@ function getD(points: Point2D[]) {
       points[2].y
     }`
   } else if (points.length === 4) {
-    const point01 = add(mul(normalize(sub(points[0], points[1])), 5), points[1])
-    const point21 = add(mul(normalize(sub(points[2], points[1])), 5), points[1])
-    const point12 = add(mul(normalize(sub(points[1], points[2])), 5), points[2])
-    const point32 = add(mul(normalize(sub(points[3], points[2])), 5), points[2])
+    const point01 = add(
+      mul(normalize(sub(points[0], points[1])), ROUNDED),
+      points[1]
+    )
+    const point21 = add(
+      mul(normalize(sub(points[2], points[1])), ROUNDED),
+      points[1]
+    )
+    const point12 = add(
+      mul(normalize(sub(points[1], points[2])), ROUNDED),
+      points[2]
+    )
+    const point32 = add(
+      mul(normalize(sub(points[3], points[2])), ROUNDED),
+      points[2]
+    )
 
     return `
     M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${points[1].x} ${points[1].y} ${point21.x} ${point21.y} L ${point12.x} ${point12.y}
@@ -112,8 +135,9 @@ const StatsConnLabel = ({
   y: number
   subtitle?: string
   title: string
-  tooltip: ReactNode
+  tooltip?: ReactNode
 }) => {
+  const baseY = subtitle ? 10 : 0
   return (
     <g transform={`translate(${x}, ${y})`}>
       <rect
@@ -122,10 +146,10 @@ const StatsConnLabel = ({
         rx={1}
         ry={1}
         width={120}
-        height={40}
+        height={38 + baseY}
         fill="#ffffff"
         stroke="#7887A0"
-        strokeWidth={1}
+        strokeWidth={2}
       ></rect>
 
       {subtitle ? (
@@ -136,17 +160,17 @@ const StatsConnLabel = ({
             fontSize="12"
             letterSpacing="0em"
           >
-            <tspan x="6" y="12" textAnchor="start">
+            <tspan x="6" y="14" textAnchor="start">
               {subtitle}
             </tspan>
           </text>
           <text
             fill="#000000"
             fontFamily="Inter"
-            fontSize="18"
+            fontSize="20"
             letterSpacing="0em"
           >
-            <tspan x="60" y="30" textAnchor="middle">
+            <tspan x="60" y="37" textAnchor="middle">
               {title}
             </tspan>
           </text>
@@ -155,18 +179,54 @@ const StatsConnLabel = ({
         <text
           fill="#000000"
           fontFamily="Inter"
-          fontSize="18"
+          fontSize="20"
           letterSpacing="0em"
         >
-          <tspan x="60" y="28" textAnchor="middle">
+          <tspan x="60" y="27" textAnchor="middle">
             {title}
           </tspan>
         </text>
       )}
 
-      <foreignObject width={20} height={20} x={90} y={2}>
-        <InfoTooltip placement="top">{tooltip}</InfoTooltip>
-      </foreignObject>
+      {tooltip ? (
+        <foreignObject width={20} height={20} x={90} y={2}>
+          <InfoTooltip placement="top">{tooltip}</InfoTooltip>
+        </foreignObject>
+      ) : (
+        <></>
+      )}
+    </g>
+  )
+}
+
+const StatsConnLabelSmall = ({
+  x,
+  y,
+  title
+}: {
+  x: number
+  y: number
+  title: string
+}) => {
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <rect
+        x={0}
+        y={0}
+        rx={1}
+        ry={1}
+        width={76}
+        height={38}
+        fill="#ffffff"
+        stroke="#7887A0"
+        strokeWidth={2}
+      ></rect>
+
+      <text fill="#000000" fontFamily="Inter" fontSize="20" letterSpacing="0em">
+        <tspan x="38" y="26" textAnchor="middle">
+          {title}
+        </tspan>
+      </text>
     </g>
   )
 }
@@ -192,7 +252,8 @@ const StatsNode = ({
   icon: string
   props: StatsNodeProp
 }) => {
-  const height = 140 + props.items.length * 20
+  const padding = 27
+  const height = 134 + props.items.length * padding
 
   return (
     <g transform={`translate(${x}, ${y})`}>
@@ -205,12 +266,12 @@ const StatsNode = ({
         height={height}
         fill="#ffffff"
         stroke="#7887A0"
-        strokeWidth={1}
+        strokeWidth={2}
       ></rect>
-      <rect x="10" y="8" width="160" height="20" rx="4" fill="#F1F4F9" />
+      <rect x="10" y="10" width="160" height="20" rx="4" fill="#F1F4F9" />
 
       <text fill="#7887A0" fontFamily="Inter" fontSize="18" letterSpacing="0em">
-        <tspan x="90" y="24" textAnchor="middle">
+        <tspan x="90" y="26" textAnchor="middle">
           {title}
         </tspan>
       </text>
@@ -229,7 +290,7 @@ const StatsNode = ({
                 fontSize="16"
                 letterSpacing="0em"
               >
-                <tspan x="90" y={138 + i * 20} textAnchor="middle">
+                <tspan x="90" y={140 + i * padding} textAnchor="middle">
                   {item.title}
                 </tspan>
               </text>
@@ -244,7 +305,7 @@ const StatsNode = ({
                 fontSize="16"
                 letterSpacing="0em"
               >
-                <tspan x="28" y={138 + i * 20} textAnchor="start">
+                <tspan x="28" y={140 + i * padding} textAnchor="start">
                   {item.title}
                 </tspan>
               </text>
@@ -254,7 +315,12 @@ const StatsNode = ({
                 fontSize="16"
                 letterSpacing="0em"
               >
-                <tspan id="predy-tvl" x="152" y={138 + i * 20} textAnchor="end">
+                <tspan
+                  id="predy-tvl"
+                  x="152"
+                  y={140 + i * padding}
+                  textAnchor="end"
+                >
                   {item.value}
                 </tspan>
               </text>
@@ -277,18 +343,19 @@ const Actor = ({
   title: string
   icon: string
 }) => {
+  const width = 140
   return (
     <g transform={`translate(${x}, ${y})`}>
-      <rect x="10" y="88" width="160" height="20" rx="4" fill="#F1F4F9" />
+      <rect x="0" y="84" width={width} height="20" rx="4" fill="#F1F4F9" />
 
       <text fill="#7887A0" fontFamily="Inter" fontSize="18" letterSpacing="0em">
-        <tspan x="90" y="102" textAnchor="middle">
+        <tspan x={width / 2} y="100" textAnchor="middle">
           {title}
         </tspan>
       </text>
 
       <g>
-        <image href={icon} x="60" y="12" />
+        <image href={icon} x={width / 2 - 32} y="12" width={64} />
       </g>
     </g>
   )
@@ -451,30 +518,32 @@ const StatsChart = () => {
           items: [
             {
               title: 'TVL',
-              value: predyTvl.data || '0'
+              value: '$' + (predyTvl.data || '0')
             }
           ]
         }}
       />
 
-      <Actor x={0} y={0} title="ETH Lender" icon={ethLenderIcon} />
-      <Actor x={0} y={560} title="USDC Lender" icon={usdcLenderIcon} />
-      <Actor x={380} y={0} title="Predy User" icon={predyUserIcon} />
+      <Actor x={10} y={0} title="ETH Lender" icon={ethLenderIcon} />
+      <Actor x={10} y={560} title="USDC Lender" icon={usdcLenderIcon} />
+      <Actor x={410} y={0} title="Predy User" icon={predyUserIcon} />
 
       <Connection
         points={[
-          { x: 200, y: 80 },
-          { x: 280, y: 80 },
-          { x: 280, y: 100 }
+          { x: 162, y: 68 },
+          { x: 280, y: 68 },
+          { x: 280, y: 99 }
         ]}
       />
+      <StatsConnLabelSmall x={180} y={50} title={'ETH'} />
       <Connection
         points={[
-          { x: 200, y: 580 },
-          { x: 280, y: 580 },
-          { x: 280, y: 550 }
+          { x: 162, y: 600 },
+          { x: 280, y: 600 },
+          { x: 280, y: 562 }
         ]}
       />
+      <StatsConnLabelSmall x={180} y={580} title={'USDC'} />
 
       <Connection
         points={[
@@ -494,30 +563,31 @@ const StatsChart = () => {
 
       <Connection
         points={[
-          { x: 580, y: 80 },
-          { x: 670, y: 80 },
+          { x: 550, y: 70 },
+          { x: 670, y: 70 },
           { x: 670, y: 100 }
         ]}
       />
       <Connection
         points={[
-          { x: 580, y: 80 },
-          { x: 1020, y: 80 },
+          { x: 550, y: 70 },
+          { x: 1020, y: 70 },
           { x: 1020, y: 100 }
         ]}
       />
+      <StatsConnLabelSmall x={570} y={50} title={'USDC'} />
 
       <Connection
         points={[
-          { x: 568, y: 500 },
-          { x: 500, y: 500 },
-          { x: 500, y: 250 },
-          { x: 570, y: 250 }
+          { x: 570, y: 520 },
+          { x: 495, y: 520 },
+          { x: 495, y: 260 },
+          { x: 570, y: 260 }
         ]}
       />
       <StatsConnLabel
-        x={450}
-        y={360}
+        x={438}
+        y={396}
         title={'$' + convertNotionalToString(mothlyFee.data?.tradeFee || 0)}
         subtitle="Monthly Fee"
         tooltip={
@@ -528,6 +598,7 @@ const StatsChart = () => {
               href="https://dune.com/queries/2355185/3857264"
               target="_blank"
               rel="noreferrer"
+              className="border-0 underline border-white"
             >
               Dune
             </a>
@@ -538,13 +609,13 @@ const StatsChart = () => {
 
       <Connection
         points={[
-          { x: 654, y: 300 },
+          { x: 654, y: 316 },
           { x: 654, y: 410 }
         ]}
       />
       <StatsConnLabel
         x={600}
-        y={320}
+        y={340}
         title="LP"
         tooltip={
           <div className="text-center">
@@ -555,6 +626,7 @@ const StatsChart = () => {
               href="https://dune.com/queries/2355185/3857264"
               target="_blank"
               rel="noreferrer"
+              className="border-0 underline"
             >
               Dune
             </a>
@@ -570,8 +642,8 @@ const StatsChart = () => {
         ]}
       />
       <StatsConnLabel
-        x={800}
-        y={180}
+        x={790}
+        y={176}
         title={'$' + convertNotionalToString(mothlyFee.data?.premium || 0)}
         subtitle="Monthly Fee"
         tooltip={
@@ -583,6 +655,7 @@ const StatsChart = () => {
               href="https://defillama.com/fees/predy-finance"
               target="_blank"
               rel="noreferrer"
+              className="border-0 underline"
             >
               DefiLlama
             </a>
@@ -597,13 +670,31 @@ const StatsChart = () => {
           { x: 945, y: 540 }
         ]}
       />
+      <StatsConnLabelSmall x={810} y={520} title={'Short'} />
 
       <Connection
         points={[
-          { x: 1030, y: 300 },
+          { x: 1030, y: 316 },
           { x: 1030, y: 410 }
         ]}
       />
+      <StatsConnLabelSmall x={990} y={350} title={'Long'} />
+
+      <image href={niceIcon} x="780" y="315" />
+      <a
+        href="https://dune.com/predy/predy-v32"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <image href={duneIcon} x="864" y="18" width="100" />
+      </a>
+      <a
+        href="https://defillama.com/protocol/predy-finance"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <image href={defiLlamaIcon} x="984" y="18" width="100" />
+      </a>
     </svg>
   )
 }

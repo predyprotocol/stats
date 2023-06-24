@@ -1,5 +1,10 @@
 import React, { ReactNode } from 'react'
-import { Tooltip, Typography } from '@material-tailwind/react'
+import {
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Typography
+} from '@material-tailwind/react'
 import infoSvg from '../../assets/info.svg'
 
 const InfoTooltip = ({
@@ -9,23 +14,26 @@ const InfoTooltip = ({
   children: ReactNode
   placement: string
 }) => {
+  const [openPopover, setOpenPopover] = React.useState(false)
+  const triggers = {
+    onMouseEnter: () => setOpenPopover(true),
+    onMouseLeave: () => setOpenPopover(false)
+  }
   return (
-    <Tooltip
-      content={
-        <div className="w-80 p-2 bg-white rounded-xl">
-          <Typography
-            variant="small"
-            color="black"
-            className="font-normal bg-white text-black"
-          >
-            {children}
-          </Typography>
-        </div>
-      }
-      placement={placement}
-    >
-      <img className="ml-1 mb-2" src={infoSvg} alt="info" width={16} />
-    </Tooltip>
+    <Popover open={openPopover} handler={setOpenPopover}>
+      <PopoverHandler {...triggers}>
+        <img className="ml-1 mb-2" src={infoSvg} alt="info" width={16} />
+      </PopoverHandler>
+      <PopoverContent {...triggers} className="w-80 bg-white rounded-xl shadow">
+        <Typography
+          variant="small"
+          color="black"
+          className="font-normal bg-white text-black"
+        >
+          {children}
+        </Typography>
+      </PopoverContent>
+    </Popover>
   )
 }
 

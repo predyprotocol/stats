@@ -19,26 +19,17 @@ export function useUniswapPool(assetId: number) {
 
       const poolAddress = '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443'
 
-      const poolDayData = await queryPoolDayData(
+      const poolDayData = await queryPoolDayData(poolAddress, undefined)
+      const poolDayData24 = await queryPoolDayData(
         poolAddress,
         blocks.data[0].number
       )
-      const poolDayData24 = await queryPoolDayData(
+      const poolDayData48 = await queryPoolDayData(
         poolAddress,
         blocks.data[1].number
       )
-      const poolDayData48 = await queryPoolDayData(
-        poolAddress,
-        blocks.data[2].number
-      )
 
       const yesterdayTvlUSD = poolDayData24.tvlUSD
-      const tickLiquidityUSD =
-        poolDayData.liquidity
-          .mul(poolDayData.sqrtPrice)
-          .mul(2)
-          .div(Q96)
-          .toNumber() / 1000000
 
       const volumeUSD = poolDayData.volumeUSD - poolDayData24.volumeUSD
       const yesterdayVolumeUSD =
@@ -65,6 +56,12 @@ export function useUniswapPool(assetId: number) {
         (poolDayData.tvlUSD - yesterdayTvlUSD) / yesterdayTvlUSD
       const diffVolumeUSD =
         (volumeUSD - yesterdayVolumeUSD) / yesterdayVolumeUSD
+
+      const liquidity = poolDayData.liquidity
+
+      const tickLiquidityUSD =
+        liquidity.mul(poolDayData.sqrtPrice).mul(2).div(Q96).toNumber() /
+        1000000
 
       const iv = 2 * Math.sqrt((feesUSD * 365) / tickLiquidityUSD)
 

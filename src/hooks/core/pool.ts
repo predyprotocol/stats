@@ -4,13 +4,16 @@ import { ZERO } from '../../constants'
 const UNISWAP_SUBGRAPH_ENDPOINT =
   'https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal'
 
-export async function queryPoolDayData(poolAddress: string, block: number) {
+export async function queryPoolDayData(
+  poolAddress: string,
+  block: number | undefined
+) {
   const body = {
     operationName: 'pools',
     query: `query pools($address: Bytes!) {
         pools(
           where: {id: $address}
-          block: {number: ${block}}
+          ${block ? `block: {number: ${block}} ,` : ''}
           subgraphError: allow
         ) {
           feeTier
@@ -18,15 +21,18 @@ export async function queryPoolDayData(poolAddress: string, block: number) {
           volumeUSD
           liquidity
           sqrtPrice
+          tick
           totalValueLockedUSD
           volumeToken0
           volumeToken1
           totalValueLockedToken0
           totalValueLockedToken1
           token0 {
+            decimals
             derivedETH
           }
           token1 {
+            decimals
             derivedETH
           }
           totalValueLockedUSD
@@ -44,6 +50,7 @@ export async function queryPoolDayData(poolAddress: string, block: number) {
 
   if (resBody.data.pools.length === 0) {
     return {
+      tick: 0,
       feeTier: 0,
       tvlUSD: 0,
       volumeUSD: 0,
@@ -56,9 +63,11 @@ export async function queryPoolDayData(poolAddress: string, block: number) {
       totalValueLockedToken0: 0,
       totalValueLockedToken1: 0,
       token0: {
+        decimals: 0,
         derivedETH: 0
       },
       token1: {
+        decimals: 0,
         derivedETH: 0
       }
     }
@@ -67,6 +76,7 @@ export async function queryPoolDayData(poolAddress: string, block: number) {
   const poolDayData = resBody.data.pools[0]
 
   return {
+    tick: Number(poolDayData.tick),
     feeTier: Number(poolDayData.feeTier),
     tvlUSD: Number(poolDayData.totalValueLockedUSD),
     volumeUSD: Number(poolDayData.volumeUSD),
@@ -79,9 +89,11 @@ export async function queryPoolDayData(poolAddress: string, block: number) {
     totalValueLockedToken0: Number(poolDayData.totalValueLockedToken0),
     totalValueLockedToken1: Number(poolDayData.totalValueLockedToken1),
     token0: {
+      decimals: Number(poolDayData.token0.decimals),
       derivedETH: Number(poolDayData.token0.derivedETH)
     },
     token1: {
+      decimals: Number(poolDayData.token0.decimals),
       derivedETH: Number(poolDayData.token1.derivedETH)
     }
   }
