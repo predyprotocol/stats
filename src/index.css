@@ -9,34 +9,6 @@
   }
 }
 
-.final-gradient {
-  background: linear-gradient(97.69deg, #1D85FF -2.6%, #8525FF 95.54%);
-}
-
-.left-gradient {
-  background: linear-gradient(97.69deg, #1D85FF -2.1%, #1D85FF -2.6%);
-}
-
-.right-gradient {
-  background: linear-gradient(97.69deg, #8525FF 95.54%, #8525FF 95.7%);
-}
-
-.final-gradient-outline {
-  background: linear-gradient(180deg, #257EFF 0%, #8526FF 100%);
-}
-
-.text-color-final-gradient {
-  background: linear-gradient(97.69deg, #1D85FF -2.6%, #8525FF 95.54%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-.green-gradient {
-  background: linear-gradient(97.69deg, #10E3A4FF 0%, #10E3A4A0 100%);
-}
-
 body {
   font-size: 14px;
   min-width: 100vw;

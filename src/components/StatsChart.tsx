@@ -70,9 +70,11 @@ function getD(points: Point2D[]) {
       points[1]
     )
 
-    return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${points[1].x
-      } ${points[1].y} ${point21.x} ${point21.y + 5} L ${points[2].x} ${points[2].y
-      }`
+    return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${
+      points[1].x
+    } ${points[1].y} ${point21.x} ${point21.y + 5} L ${points[2].x} ${
+      points[2].y
+    }`
   } else if (points.length === 4) {
     const point01 = add(
       mul(normalize(sub(points[0], points[1])), ROUNDED),
@@ -188,7 +190,7 @@ const StatsConnLabel = ({
 
       {tooltip ? (
         <foreignObject width={20} height={20} x={90} y={2}>
-          <InfoTooltip placement="top">{tooltip}</InfoTooltip>
+          <InfoTooltip>{tooltip}</InfoTooltip>
         </foreignObject>
       ) : (
         <></>
@@ -266,7 +268,14 @@ const StatsNode = ({
         stroke="#7887A0"
         strokeWidth={2}
       ></rect>
-      <rect x={title.length > 12 ? 10 : 15} y="11" width={title.length > 12 ? 160 : 150} height="20" rx="4" fill="#F1F4F9" />
+      <rect
+        x={title.length > 12 ? 10 : 15}
+        y="11"
+        width={title.length > 12 ? 160 : 150}
+        height="20"
+        rx="4"
+        fill="#F1F4F9"
+      />
 
       <text fill="#7887A0" fontFamily="Inter" fontSize="18" letterSpacing="0em">
         <tspan x="90" y="27" textAnchor="middle">
@@ -463,7 +472,9 @@ const StatsChart = () => {
             {
               titleOnly: true,
               title:
-                convertNotionalToString(toUnscaled(usdcSummary.data?.supply || ZERO, 6, 2)) + ' USDC',
+                convertNotionalToString(
+                  toUnscaled(usdcSummary.data?.supply || ZERO, 6, 2)
+                ) + ' USDC',
               value: ''
             },
             {
