@@ -43,7 +43,6 @@ const Header = () => {
                     : 'text-subtext'
                 }`}
               >
-                <div className="w-1 h-1 rounded-full bg-red p-1" />
                 <Link href="/v320">Version 3.2</Link>
               </li>
               <li
