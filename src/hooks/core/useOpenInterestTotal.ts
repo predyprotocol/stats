@@ -27,9 +27,9 @@ export function useOpenInterest() {
       return {
         id: item.id,
         longPerp: toUnscaled(BigNumber.from(item.longPerp), 18),
-        longSquart: toUnscaled(BigNumber.from(item.longSquart), 12),
+        longSquart: toUnscaled(BigNumber.from(item.longSquart).mul(2), 12),
         shortPerp: toUnscaled(BigNumber.from(item.shortPerp), 18),
-        shortSquart: toUnscaled(BigNumber.from(item.shortSquart), 12)
+        shortSquart: toUnscaled(BigNumber.from(item.shortSquart).mul(2), 12)
       }
     }
     return null
