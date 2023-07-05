@@ -419,7 +419,7 @@ const StatsChart = () => {
       <StatsNode
         x={571}
         y={100}
-        title="Gamma Short"
+        title="Short Strangle"
         icon={predyIcon}
         props={{
           items: [
@@ -442,7 +442,7 @@ const StatsChart = () => {
       <StatsNode
         x={945}
         y={100}
-        title="Gamma Long"
+        title="Long Strangle"
         icon={predyIcon}
         props={{
           items: [
