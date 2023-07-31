@@ -2,10 +2,11 @@ import { useQuery } from 'react-query'
 import { Multicall__factory } from '../../typechain/multicall/index'
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
-import { ASSET_DECIMALS, MARGIN, Q96, ZERO } from '../../constants'
+import { Q96, ZERO } from '../../constants'
 import { Controller__factory } from '../../typechain'
 import { useProvider } from './useProvider'
 import { arbitrum } from '../../constants/addresses'
+import { ASSET_INFOS, MARGIN_INFOS } from '../../constants/assets'
 
 interface PriceResult {
   sqrtPrice: BigNumber
@@ -96,8 +97,10 @@ export function usePrice(assetId: number) {
         result.returnData[1]
       )[0]
 
-      const assetDecimals = ASSET_DECIMALS[assetId]
-      const marginDecimals = MARGIN.DECIMALS
+      const pairInfo = ASSET_INFOS[assetId]
+
+      const assetDecimals = pairInfo.decimals
+      const marginDecimals = MARGIN_INFOS[pairInfo.pairGroupId].decimals
 
       return {
         sqrtPrice,

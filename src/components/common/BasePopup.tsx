@@ -54,7 +54,7 @@ const BasePopupContent = ({
   return (
     <div>
       <div
-        className={`absolute mt-[2px] w-60 rounded-xl bg-black8 text-sm font-light z-20 pointer-cursor ${
+        className={`absolute mt-[2px] w-[200px] rounded-xl bg-black8 text-sm font-light z-20 pointer-cursor ${
           isShowing ? 'visible' : 'invisible'
         }`}
         onMouseEnter={onMouseEnter}

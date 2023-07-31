@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query'
-import { useLpRevenueDaily } from './core/useLpRevenueDaily'
 import { ONE, ZERO } from '../constants'
 import { usePrice } from './core/usePrice'
 import { toUnscaled } from '../utils/bn'
+import { useFeeDaily } from './core/useFeeDaily'
 
 export function useMonthlyPremium(pairId: number) {
   // 30 days before
@@ -10,7 +10,7 @@ export function useMonthlyPremium(pairId: number) {
     (new Date().getTime() - 60 * 60 * 24 * 30 * 1000) / 1000
   )
 
-  const lpRevenueDaily = useLpRevenueDaily(startTimestamp)
+  const lpRevenueDaily = useFeeDaily(pairId, startTimestamp)
   const price = usePrice(pairId)
 
   return useQuery(
@@ -19,25 +19,46 @@ export function useMonthlyPremium(pairId: number) {
       if (!lpRevenueDaily) throw new Error('provider not set')
       if (!price.isSuccess) throw new Error('price not set')
 
-      const accumulatedFee0 = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.fee0)
-      }, ZERO)
-      const accumulatedFee1 = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.fee1)
-      }, ZERO)
-      const accumulatedPremiumBorrow = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.premiumBorrow)
-      }, ZERO)
+      const accumulatedSupplySqrtFee0 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.supplySqrtFee0)
+        },
+        ZERO
+      )
+      const accumulatedSupplySqrtFee1 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.supplySqrtFee1)
+        },
+        ZERO
+      )
+      const accumulatedBorrowSqrtFee0 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.borrowSqrtFee0)
+        },
+        ZERO
+      )
+      const accumulatedBorrowSqrtFee1 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.borrowSqrtFee1)
+        },
+        ZERO
+      )
 
-      const tradeFeeEth = accumulatedFee0
+      const accumulatedSupplySqrtFee = accumulatedSupplySqrtFee0
         .mul(price.data.price)
         .div(ONE)
+        .add(accumulatedSupplySqrtFee1)
+      const accumulatedBorrowSqrtFee = accumulatedBorrowSqrtFee0
+        .mul(price.data.price)
         .div(ONE)
-      const tradeFeeUsdc = accumulatedFee1.div(ONE)
+        .add(accumulatedBorrowSqrtFee1)
 
       return {
-        premium: toUnscaled(accumulatedPremiumBorrow.div(ONE), 6),
-        tradeFee: toUnscaled(tradeFeeEth.add(tradeFeeUsdc), 6)
+        premium: toUnscaled(accumulatedBorrowSqrtFee, 6),
+        tradeFee: toUnscaled(
+          accumulatedSupplySqrtFee.sub(accumulatedBorrowSqrtFee),
+          6
+        )
       }
     },
     {

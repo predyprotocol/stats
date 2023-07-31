@@ -7,11 +7,14 @@ import { useUniFeeGrowthHourly } from './useFeeGrowth'
 const NUM_ITEMS = 24
 
 // calculate 24h trade fee for token 0 and token 1
-export function useUniswapTradeFee24H(contractAddress: string) {
+export function useUniswapTradeFee24H(
+  contractAddress: string,
+  trimmedMean: boolean
+) {
   const uniFeeGrowth = useUniFeeGrowthHourly(contractAddress)
 
   return useQuery(
-    ['uniswap_trade_fee_24h', contractAddress],
+    ['uniswap_trade_fee_24h', contractAddress, trimmedMean],
     async () => {
       if (!uniFeeGrowth) throw new Error('uniFeeGrowth not set')
 
@@ -22,9 +25,16 @@ export function useUniswapTradeFee24H(contractAddress: string) {
         uniFeeGrowth.map(i => i.feeGrowthGlobal1X128)
       )
 
-      return {
-        fee0: calculateTrimmedMean(sliceLastItems(hourlyFees0, NUM_ITEMS)),
-        fee1: calculateTrimmedMean(sliceLastItems(hourlyFees1, NUM_ITEMS))
+      if (trimmedMean) {
+        return {
+          fee0: calculateTrimmedMean(sliceLastItems(hourlyFees0, NUM_ITEMS)),
+          fee1: calculateTrimmedMean(sliceLastItems(hourlyFees1, NUM_ITEMS))
+        }
+      } else {
+        return {
+          fee0: sumArray(sliceLastItems(hourlyFees0, NUM_ITEMS)),
+          fee1: sumArray(sliceLastItems(hourlyFees1, NUM_ITEMS))
+        }
       }
     },
     {
@@ -54,6 +64,17 @@ function calculateTrimmedMean(data: BigNumber[]) {
 
   return trimArray(dataCopied, 1)
     .reduce((acc, item) => acc.add(item), BigNumber.from(0))
-    .div(22)
     .mul(24)
+    .div(22)
+}
+
+function sumArray(data: BigNumber[]) {
+  if (data.length != NUM_ITEMS) {
+    console.warn(`data length is not ${NUM_ITEMS}`)
+  }
+
+  /// copy
+  const dataCopied = [...data]
+
+  return dataCopied.reduce((acc, item) => acc.add(item), BigNumber.from(0))
 }

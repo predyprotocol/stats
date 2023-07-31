@@ -6,8 +6,6 @@ import usdcIcon from '../assets/usdc.svg'
 import predyUserIcon from '../assets/predyuser.svg'
 import ethLenderIcon from '../assets/ethlender.svg'
 import usdcLenderIcon from '../assets/usdclender.svg'
-import defiLlamaIcon from '../assets/defillama-dark.svg'
-import duneIcon from '../assets/dune.svg'
 import niceIcon from '../assets/nice.png'
 import { useLendingPoolSummary } from '../hooks/useLendingPoolSummary'
 import { useUniswapPool } from '../hooks/useUniswapPool'
@@ -15,7 +13,6 @@ import { convertNotionalToString } from '../utils'
 import InfoTooltip from './common/InfoTooltip'
 import { useMonthlyPremium } from '../hooks/useMonthlyPremium'
 import { useOpenInterest } from '../hooks/core/useOpenInterestTotal'
-import { usePredyTvl } from '../hooks/usePredyTvl'
 import { toUnscaled } from '../utils/bn'
 import { ZERO } from '../constants'
 
@@ -368,13 +365,11 @@ const Actor = ({
   )
 }
 
-const StatsChart = () => {
-  const usdcSummary = useLendingPoolSummary(1)
-  const ethSummary = useLendingPoolSummary(2)
-  const uniswapSummary = useUniswapPool(2)
-  const mothlyFee = useMonthlyPremium(2)
+const StatsChart = ({ pairId }: { pairId: number }) => {
+  const lendingSummary = useLendingPoolSummary(pairId)
+  const uniswapSummary = useUniswapPool(pairId)
+  const mothlyFee = useMonthlyPremium(pairId)
   const openInterest = useOpenInterest()
-  const predyTvl = usePredyTvl()
 
   return (
     <svg aria-hidden="true" viewBox="0 0 1200 690" preserveAspectRatio="none">
@@ -402,16 +397,20 @@ const StatsChart = () => {
             {
               titleOnly: true,
               title:
-                toUnscaled(ethSummary.data?.supply || ZERO, 18, 2) + ' ETH',
+                toUnscaled(
+                  lendingSummary.data?.underlying.supply || ZERO,
+                  18,
+                  2
+                ) + ' ETH',
               value: ''
             },
             {
               title: 'APR',
-              value: (ethSummary.data?.supplyInterest || 0) + '%'
+              value: (lendingSummary.data?.underlying.supplyInterest || 0) + '%'
             },
             {
               title: 'UTIL.',
-              value: (ethSummary.data?.utilization || 0) + '%'
+              value: (lendingSummary.data?.underlying.utilization || 0) + '%'
             }
           ]
         }}
@@ -473,17 +472,17 @@ const StatsChart = () => {
               titleOnly: true,
               title:
                 convertNotionalToString(
-                  toUnscaled(usdcSummary.data?.supply || ZERO, 6, 2)
+                  toUnscaled(lendingSummary.data?.stable.supply || ZERO, 6, 2)
                 ) + ' USDC',
               value: ''
             },
             {
               title: 'APR',
-              value: (usdcSummary.data?.supplyInterest || 0) + '%'
+              value: (lendingSummary.data?.stable.supplyInterest || 0) + '%'
             },
             {
               title: 'UTIL.',
-              value: (usdcSummary.data?.utilization || 0) + '%'
+              value: (lendingSummary.data?.stable.utilization || 0) + '%'
             }
           ]
         }}
@@ -514,20 +513,6 @@ const StatsChart = () => {
             {
               title: 'IV',
               value: ((uniswapSummary.data?.iv || 0) * 100).toFixed(2) + '%'
-            }
-          ]
-        }}
-      />
-      <StatsNode
-        x={945}
-        y={412}
-        title="Predy V3.2 AMM"
-        icon={predyIcon}
-        props={{
-          items: [
-            {
-              title: 'TVL',
-              value: '$' + (predyTvl.data || '0')
             }
           ]
         }}
@@ -669,41 +654,17 @@ const StatsChart = () => {
               DefiLlama
             </a>
             .
+            <iframe
+              src="https://dune.com/embeds/2769088/4609260"
+              height="320px"
+              width="100%"
+              title="premium chart"
+            ></iframe>
           </div>
         }
       />
 
-      <Connection
-        points={[
-          { x: 752, y: 540 },
-          { x: 945, y: 540 }
-        ]}
-      />
-      <StatsConnLabelSmall x={810} y={520} title={'Short'} />
-
-      <Connection
-        points={[
-          { x: 1030, y: 316 },
-          { x: 1030, y: 410 }
-        ]}
-      />
-      <StatsConnLabelSmall x={990} y={350} title={'Long'} />
-
-      <image href={niceIcon} x="780" y="315" />
-      <a
-        href="https://dune.com/predy/predy-v32"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <image href={duneIcon} x="864" y="18" width="100" />
-      </a>
-      <a
-        href="https://defillama.com/protocol/predy-finance"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <image href={defiLlamaIcon} x="984" y="18" width="100" />
-      </a>
+      <image href={niceIcon} x="890" y="470" />
     </svg>
   )
 }

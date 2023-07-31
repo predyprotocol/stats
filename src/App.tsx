@@ -15,9 +15,13 @@ const App = () => {
           <Header />
           <div className="mx-auto mt-20">
             <Route path="/">
-              <Redirect to="/v320" />
+              <Redirect to="/v5" />
             </Route>
-            <Route path="/v320" component={MainView} />
+            <Route path="/v320">
+              <Redirect to="/v5" />
+            </Route>
+
+            <Route path="/v5" component={MainView} />
           </div>
         </Router>
       </div>

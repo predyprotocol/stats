@@ -21,12 +21,12 @@ export const goerliArbitrum = {
 export const arbitrum = {
   Predy: {
     http: new HttpLink({
-      uri: 'https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-arbitrum'
+      uri: 'https://api.thegraph.com/subgraphs/name/predy-dev/predy-v4-arbitrum'
     })
   },
   Uniswap: {
     http: new HttpLink({
-      uri: 'https://api.thegraph.com/subgraphs/name/predy-dev/predy-v320-uni-arbitrum'
+      uri: 'https://api.thegraph.com/subgraphs/name/predy-dev/predy-fee-arbitrum'
     })
   }
 }

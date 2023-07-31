@@ -7,17 +7,14 @@ import mediumIcon from '../../assets/links/medium.svg'
 import { HamburgerMenu } from '../common/HamburgerMenu'
 
 enum SelectableMenu {
-  V320,
-  V4
+  V5
 }
 
 function getSelectableMenu(path: string) {
-  if (path.indexOf('v320') >= 0) {
-    return SelectableMenu.V320
-  } else if (path.indexOf('v4') >= 0) {
-    return SelectableMenu.V4
+  if (path.indexOf('v5') >= 0) {
+    return SelectableMenu.V5
   }
-  return SelectableMenu.V320
+  return SelectableMenu.V5
 }
 
 const Header = () => {
@@ -38,21 +35,12 @@ const Header = () => {
             <ul className="flex flex-row items-center space-x-6 text-sm">
               <li
                 className={`flex justify-center items-center space-x-1 rounded-3xl px-4 py-1 ${
-                  selected === SelectableMenu.V320
+                  selected === SelectableMenu.V5
                     ? 'bg-primary text-white'
                     : 'text-subtext'
                 }`}
               >
-                <Link href="/v320">Version 3.2</Link>
-              </li>
-              <li
-                className={`rounded-3xl px-4 py-1 ${
-                  selected === SelectableMenu.V4
-                    ? 'bg-primary text-white'
-                    : 'text-subtext'
-                }`}
-              >
-                <div className="whitespace-nowrap">Version 4(Coming Soon)</div>
+                <Link href="/v320">Version 5</Link>
               </li>
             </ul>
           </div>
@@ -94,7 +82,7 @@ const Header = () => {
         <div className="flex items-center">
           <div>
             <div className="pr-8 hidden md:block">
-              <a href="https://app.predy.finance">App</a>
+              <a href="https://v5app.predy.finance">App</a>
             </div>
           </div>
           <div>
@@ -115,21 +103,12 @@ const Header = () => {
           <ul className="py-2 flex flex-col items-center space-y-6 text-base bg-black8">
             <li
               className={`rounded-3xl px-4 py-1 ${
-                selected === SelectableMenu.V320
+                selected === SelectableMenu.V5
                   ? 'bg-primary text-white'
                   : 'text-subtext'
               }`}
             >
-              <Link href="/v320">Version 3.2</Link>
-            </li>
-            <li
-              className={`rounded-3xl px-4 py-1 ${
-                selected === SelectableMenu.V4
-                  ? 'bg-primary text-white'
-                  : 'text-subtext'
-              }`}
-            >
-              <Link href="/v4">Version 4(Coming Soon)</Link>
+              <Link href="/v5">Version 5</Link>
             </li>
           </ul>
         </div>
