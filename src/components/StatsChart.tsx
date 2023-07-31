@@ -6,8 +6,6 @@ import usdcIcon from '../assets/usdc.svg'
 import predyUserIcon from '../assets/predyuser.svg'
 import ethLenderIcon from '../assets/ethlender.svg'
 import usdcLenderIcon from '../assets/usdclender.svg'
-import defiLlamaIcon from '../assets/defillama-dark.svg'
-import duneIcon from '../assets/dune.svg'
 import niceIcon from '../assets/nice.png'
 import { useLendingPoolSummary } from '../hooks/useLendingPoolSummary'
 import { useUniswapPool } from '../hooks/useUniswapPool'
@@ -15,7 +13,6 @@ import { convertNotionalToString } from '../utils'
 import InfoTooltip from './common/InfoTooltip'
 import { useMonthlyPremium } from '../hooks/useMonthlyPremium'
 import { useOpenInterest } from '../hooks/core/useOpenInterestTotal'
-import { usePredyTvl } from '../hooks/usePredyTvl'
 import { toUnscaled } from '../utils/bn'
 import { ZERO } from '../constants'
 
@@ -70,9 +67,11 @@ function getD(points: Point2D[]) {
       points[1]
     )
 
-    return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${points[1].x
-      } ${points[1].y} ${point21.x} ${point21.y + 5} L ${points[2].x} ${points[2].y
-      }`
+    return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${
+      points[1].x
+    } ${points[1].y} ${point21.x} ${point21.y + 5} L ${points[2].x} ${
+      points[2].y
+    }`
   } else if (points.length === 4) {
     const point01 = add(
       mul(normalize(sub(points[0], points[1])), ROUNDED),
@@ -371,7 +370,6 @@ const StatsChart = ({ pairId }: { pairId: number }) => {
   const uniswapSummary = useUniswapPool(pairId)
   const mothlyFee = useMonthlyPremium(pairId)
   const openInterest = useOpenInterest()
-  const predyTvl = usePredyTvl()
 
   return (
     <svg aria-hidden="true" viewBox="0 0 1200 690" preserveAspectRatio="none">
@@ -399,7 +397,11 @@ const StatsChart = ({ pairId }: { pairId: number }) => {
             {
               titleOnly: true,
               title:
-                toUnscaled(lendingSummary.data?.underlying.supply || ZERO, 18, 2) + ' ETH',
+                toUnscaled(
+                  lendingSummary.data?.underlying.supply || ZERO,
+                  18,
+                  2
+                ) + ' ETH',
               value: ''
             },
             {
@@ -511,20 +513,6 @@ const StatsChart = ({ pairId }: { pairId: number }) => {
             {
               title: 'IV',
               value: ((uniswapSummary.data?.iv || 0) * 100).toFixed(2) + '%'
-            }
-          ]
-        }}
-      />
-      <StatsNode
-        x={945}
-        y={412}
-        title="Predy V3.2 AMM"
-        icon={predyIcon}
-        props={{
-          items: [
-            {
-              title: 'TVL',
-              value: '$' + (predyTvl.data || '0')
             }
           ]
         }}
@@ -666,43 +654,17 @@ const StatsChart = ({ pairId }: { pairId: number }) => {
               DefiLlama
             </a>
             .
-            <iframe src="https://dune.com/embeds/2769088/4609260" height="320px" width="100%" title="premium chart"></iframe>
-
+            <iframe
+              src="https://dune.com/embeds/2769088/4609260"
+              height="320px"
+              width="100%"
+              title="premium chart"
+            ></iframe>
           </div>
         }
       />
 
-      <Connection
-        points={[
-          { x: 752, y: 540 },
-          { x: 945, y: 540 }
-        ]}
-      />
-      <StatsConnLabelSmall x={810} y={520} title={'Short'} />
-
-      <Connection
-        points={[
-          { x: 1030, y: 316 },
-          { x: 1030, y: 410 }
-        ]}
-      />
-      <StatsConnLabelSmall x={990} y={350} title={'Long'} />
-
-      <image href={niceIcon} x="780" y="315" />
-      <a
-        href="https://dune.com/predy/predy-v5"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <image href={duneIcon} x="864" y="18" width="100" />
-      </a>
-      <a
-        href="https://defillama.com/protocol/predy-finance"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <image href={defiLlamaIcon} x="984" y="18" width="100" />
-      </a>
+      <image href={niceIcon} x="890" y="470" />
     </svg>
   )
 }

@@ -91,10 +91,7 @@ export function useAsset(assetId: number) {
   )
 }
 
-async function queryAssetStatus(
-  contract: Controller,
-  assetId: number
-) {
+async function queryAssetStatus(contract: Controller, assetId: number) {
   const asset = await contract.callStatic.getLatestAssetStatus(assetId, {
     from: ethers.constants.AddressZero
   })
@@ -240,8 +237,8 @@ export function useUtilizationRatio(pairId: number) {
           utilization: sqrtAssetStatus.totalAmount.eq(0)
             ? ZERO
             : sqrtAssetStatus.borrowedAmount
-              .mul(ONE)
-              .div(sqrtAssetStatus.totalAmount)
+                .mul(ONE)
+                .div(sqrtAssetStatus.totalAmount)
         }
       }
     },

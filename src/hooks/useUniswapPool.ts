@@ -4,14 +4,15 @@ import { useBlocksFromTimestamps } from './core/useBlockFromTimestamp'
 import { usePrice } from './core/usePrice'
 import { queryPoolDayData } from './core/pool'
 import { toUnscaled } from '../utils/bn'
-import { Q96 } from '../constants'
 import { useAsset } from './core/useAsset'
+import { useIV } from './core/useIV'
 
 export function useUniswapPool(assetId: number) {
   const deltaTimestamps = useDeltaTimestamps()
   const blocks = useBlocksFromTimestamps(deltaTimestamps)
   const asset = useAsset(assetId)
   const price = usePrice(1)
+  const iv = useIV(assetId)
 
   return useQuery(
     ['uniswap_pool', assetId],
@@ -19,6 +20,7 @@ export function useUniswapPool(assetId: number) {
       if (!blocks.isSuccess) throw new Error('blocks not loaded')
       if (!asset.isSuccess) throw new Error('asset not loaded')
       if (!price.isSuccess) throw new Error('price not loaded')
+      if (!iv.isSuccess) throw new Error('iv not loaded')
 
       const poolAddress = asset.data.sqrtAssetStatus.uniswapPool
 
@@ -60,25 +62,18 @@ export function useUniswapPool(assetId: number) {
       const diffVolumeUSD =
         (volumeUSD - yesterdayVolumeUSD) / yesterdayVolumeUSD
 
-      const liquidity = poolDayData.liquidity
-
-      const tickLiquidityUSD =
-        liquidity.mul(poolDayData.sqrtPrice).mul(2).div(Q96).toNumber() /
-        1000000
-
-      const iv = 2 * Math.sqrt((feesUSD * 365) / tickLiquidityUSD)
-
       return {
         tvlUSD,
         volumeUSD,
         feesUSD,
-        iv,
+        iv: iv.data,
         diffTvlUSD,
         diffVolumeUSD
       }
     },
     {
-      enabled: blocks.isSuccess && asset.isSuccess && price.isSuccess
+      enabled:
+        blocks.isSuccess && asset.isSuccess && price.isSuccess && iv.isSuccess
     }
   )
 }

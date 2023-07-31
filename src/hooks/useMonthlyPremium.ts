@@ -19,18 +19,30 @@ export function useMonthlyPremium(pairId: number) {
       if (!lpRevenueDaily) throw new Error('provider not set')
       if (!price.isSuccess) throw new Error('price not set')
 
-      const accumulatedSupplySqrtFee0 = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.supplySqrtFee0)
-      }, ZERO)
-      const accumulatedSupplySqrtFee1 = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.supplySqrtFee1)
-      }, ZERO)
-      const accumulatedBorrowSqrtFee0 = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.borrowSqrtFee0)
-      }, ZERO)
-      const accumulatedBorrowSqrtFee1 = lpRevenueDaily.reduce((acc, revenue) => {
-        return acc.add(revenue.borrowSqrtFee1)
-      }, ZERO)
+      const accumulatedSupplySqrtFee0 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.supplySqrtFee0)
+        },
+        ZERO
+      )
+      const accumulatedSupplySqrtFee1 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.supplySqrtFee1)
+        },
+        ZERO
+      )
+      const accumulatedBorrowSqrtFee0 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.borrowSqrtFee0)
+        },
+        ZERO
+      )
+      const accumulatedBorrowSqrtFee1 = lpRevenueDaily.reduce(
+        (acc, revenue) => {
+          return acc.add(revenue.borrowSqrtFee1)
+        },
+        ZERO
+      )
 
       const accumulatedSupplySqrtFee = accumulatedSupplySqrtFee0
         .mul(price.data.price)
@@ -43,7 +55,10 @@ export function useMonthlyPremium(pairId: number) {
 
       return {
         premium: toUnscaled(accumulatedBorrowSqrtFee, 6),
-        tradeFee: toUnscaled(accumulatedSupplySqrtFee.sub(accumulatedBorrowSqrtFee), 6)
+        tradeFee: toUnscaled(
+          accumulatedSupplySqrtFee.sub(accumulatedBorrowSqrtFee),
+          6
+        )
       }
     },
     {

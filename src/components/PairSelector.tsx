@@ -16,8 +16,7 @@ export const PairSelector = ({
 }) => {
   const pairGroup = MARGIN_INFOS[pairGroupId]
 
-  const pairInfos = pairGroup.pairs
-    .map(pairId => ASSET_INFOS[pairId])
+  const pairInfos = pairGroup.pairs.map(pairId => ASSET_INFOS[pairId])
   const assetInfo = ASSET_INFOS[pairId]
 
   return (
@@ -28,7 +27,7 @@ export const PairSelector = ({
         </PairBadge>
       }
     >
-      <div className="w-60 py-4 flex flex-col space-y-1">
+      <div className="w-[200px] py-4 flex flex-col space-y-1">
         {pairInfos.map(pairInfo => {
           return (
             <div

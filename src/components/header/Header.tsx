@@ -34,10 +34,11 @@ const Header = () => {
           <div className="hidden md:block">
             <ul className="flex flex-row items-center space-x-6 text-sm">
               <li
-                className={`flex justify-center items-center space-x-1 rounded-3xl px-4 py-1 ${selected === SelectableMenu.V5
-                  ? 'bg-primary text-white'
-                  : 'text-subtext'
-                  }`}
+                className={`flex justify-center items-center space-x-1 rounded-3xl px-4 py-1 ${
+                  selected === SelectableMenu.V5
+                    ? 'bg-primary text-white'
+                    : 'text-subtext'
+                }`}
               >
                 <Link href="/v320">Version 5</Link>
               </li>
@@ -101,10 +102,11 @@ const Header = () => {
         <div className="block md:hidden">
           <ul className="py-2 flex flex-col items-center space-y-6 text-base bg-black8">
             <li
-              className={`rounded-3xl px-4 py-1 ${selected === SelectableMenu.V5
-                ? 'bg-primary text-white'
-                : 'text-subtext'
-                }`}
+              className={`rounded-3xl px-4 py-1 ${
+                selected === SelectableMenu.V5
+                  ? 'bg-primary text-white'
+                  : 'text-subtext'
+              }`}
             >
               <Link href="/v5">Version 5</Link>
             </li>
