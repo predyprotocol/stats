@@ -11,13 +11,13 @@ const MainView = () => {
     <>
       <div className="max-w-7xl mx-auto">
         <div className="max-w-[1360px]">
-          <div className="flex justify-end items-center space-x-0">
+          <div className="flex justify-end items-center space-x-4">
             <PairSelector
               pairId={pairId}
               pairGroupId={1}
               onSelectPairId={setPairId}
             />
-            <div className="flex justify-between items-center space-x-8">
+            <div className="flex justify-between items-center space-x-6">
               <a
                 href="https://dune.com/predy/predy-v5"
                 target="_blank"

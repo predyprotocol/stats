@@ -15,14 +15,15 @@ export const PairBadge = ({
   return (
     <div
       className={
-        'flex justify-center items-center space-x-1 ' + (className || '')
+        'flex justify-center items-center space-x-1 text-black ' +
+        (className || '')
       }
     >
       <div className="flex justify-center items-center space-x-0">
         <img src={assetInfo.icon} width={24} className="rounded-full" />
         <img src={pairGroup.icon} width={24} />
       </div>
-      <span className="text-base text-black">
+      <span className="text-base">
         {assetInfo.name}/{pairGroup.name} {assetInfo.exTooltip ? '.ex' : ''}
       </span>
       <div className="rounded-lg bg-white3 text-sm p-1">{assetInfo.fee}%</div>

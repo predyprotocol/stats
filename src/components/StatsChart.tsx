@@ -6,7 +6,6 @@ import usdcIcon from '../assets/usdc.svg'
 import predyUserIcon from '../assets/predyuser.svg'
 import ethLenderIcon from '../assets/ethlender.svg'
 import usdcLenderIcon from '../assets/usdclender.svg'
-import niceIcon from '../assets/nice.png'
 import { useLendingPoolSummary } from '../hooks/useLendingPoolSummary'
 import { useUniswapPool } from '../hooks/useUniswapPool'
 import { convertNotionalToString } from '../utils'
@@ -663,8 +662,6 @@ const StatsChart = ({ pairId }: { pairId: number }) => {
           </div>
         }
       />
-
-      <image href={niceIcon} x="890" y="470" />
     </svg>
   )
 }
