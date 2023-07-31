@@ -5,8 +5,7 @@ import {
   UniFeeGrowthHoulies,
   UNI_FEE_GROWTH_HOURLY_QUERY
 } from '../../queries/interestQuery'
-import { UniswapClient, feeArbitrum } from '../../utils/apollo-client'
-import { DEFAULT_CHAIN } from '../../constants'
+import { feeArbitrum } from '../../utils/apollo-client'
 
 export function useUniFeeGrowthHourly(contractAddress: string) {
   const { data, loading } = useQuery<UniFeeGrowthHoulies>(

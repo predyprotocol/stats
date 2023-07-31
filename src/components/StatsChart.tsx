@@ -70,11 +70,9 @@ function getD(points: Point2D[]) {
       points[1]
     )
 
-    return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${
-      points[1].x
-    } ${points[1].y} ${point21.x} ${point21.y + 5} L ${points[2].x} ${
-      points[2].y
-    }`
+    return `M ${points[0].x} ${points[0].y} L ${point01.x} ${point01.y} Q ${points[1].x
+      } ${points[1].y} ${point21.x} ${point21.y + 5} L ${points[2].x} ${points[2].y
+      }`
   } else if (points.length === 4) {
     const point01 = add(
       mul(normalize(sub(points[0], points[1])), ROUNDED),
@@ -368,11 +366,10 @@ const Actor = ({
   )
 }
 
-const StatsChart = () => {
-  const usdcSummary = useLendingPoolSummary(1)
-  const ethSummary = useLendingPoolSummary(2)
-  const uniswapSummary = useUniswapPool(2)
-  const mothlyFee = useMonthlyPremium(2)
+const StatsChart = ({ pairId }: { pairId: number }) => {
+  const lendingSummary = useLendingPoolSummary(pairId)
+  const uniswapSummary = useUniswapPool(pairId)
+  const mothlyFee = useMonthlyPremium(pairId)
   const openInterest = useOpenInterest()
   const predyTvl = usePredyTvl()
 
@@ -402,16 +399,16 @@ const StatsChart = () => {
             {
               titleOnly: true,
               title:
-                toUnscaled(ethSummary.data?.supply || ZERO, 18, 2) + ' ETH',
+                toUnscaled(lendingSummary.data?.underlying.supply || ZERO, 18, 2) + ' ETH',
               value: ''
             },
             {
               title: 'APR',
-              value: (ethSummary.data?.supplyInterest || 0) + '%'
+              value: (lendingSummary.data?.underlying.supplyInterest || 0) + '%'
             },
             {
               title: 'UTIL.',
-              value: (ethSummary.data?.utilization || 0) + '%'
+              value: (lendingSummary.data?.underlying.utilization || 0) + '%'
             }
           ]
         }}
@@ -473,17 +470,17 @@ const StatsChart = () => {
               titleOnly: true,
               title:
                 convertNotionalToString(
-                  toUnscaled(usdcSummary.data?.supply || ZERO, 6, 2)
+                  toUnscaled(lendingSummary.data?.stable.supply || ZERO, 6, 2)
                 ) + ' USDC',
               value: ''
             },
             {
               title: 'APR',
-              value: (usdcSummary.data?.supplyInterest || 0) + '%'
+              value: (lendingSummary.data?.stable.supplyInterest || 0) + '%'
             },
             {
               title: 'UTIL.',
-              value: (usdcSummary.data?.utilization || 0) + '%'
+              value: (lendingSummary.data?.stable.utilization || 0) + '%'
             }
           ]
         }}
@@ -669,6 +666,8 @@ const StatsChart = () => {
               DefiLlama
             </a>
             .
+            <iframe src="https://dune.com/embeds/2769088/4609260" height="320px" width="100%" title="premium chart"></iframe>
+
           </div>
         }
       />
@@ -691,7 +690,7 @@ const StatsChart = () => {
 
       <image href={niceIcon} x="780" y="315" />
       <a
-        href="https://dune.com/predy/predy-v32"
+        href="https://dune.com/predy/predy-v5"
         target="_blank"
         rel="noreferrer"
       >

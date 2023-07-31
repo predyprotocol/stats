@@ -21,50 +21,90 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from './common'
 
 interface ControllerInterface extends ethers.utils.Interface {
   functions: {
+    'addPair((uint256,address,bool,(uint256,int24,int24),(uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256)))': FunctionFragment
+    'addPairGroup(address,uint8)': FunctionFragment
     'allowedUniswapPools(address)': FunctionFragment
-    'closeIsolatedVault(uint256,uint256,(uint256,uint256,uint256))': FunctionFragment
+    'closeIsolatedPosition(uint256,uint64,(int256,int256,uint256,uint256,uint256,bool,bytes),uint256)': FunctionFragment
     'getAsset(uint256)': FunctionFragment
-    'getAssetGroup()': FunctionFragment
     'getLatestAssetStatus(uint256)': FunctionFragment
+    'getPairGroup(uint256)': FunctionFragment
     'getSqrtIndexPrice(uint256)': FunctionFragment
     'getSqrtPrice(uint256)': FunctionFragment
-    'getUtilizationRatio(uint256)': FunctionFragment
     'getVault(uint256)': FunctionFragment
     'getVaultStatus(uint256)': FunctionFragment
-    'getVaultStatusWithAddress()': FunctionFragment
-    'initialize(address,(uint256,uint256,uint256,uint256),tuple[])': FunctionFragment
-    'liquidationCall(uint256,uint256)': FunctionFragment
-    'openIsolatedVault(uint256,uint256,(int256,int256,uint256,uint256,uint256,bool,bytes))': FunctionFragment
+    'getVaultStatusWithAddress(uint256)': FunctionFragment
+    'globalData()': FunctionFragment
+    'initialize()': FunctionFragment
+    'liquidationCall(uint256,uint256,uint256)': FunctionFragment
+    'liquidator()': FunctionFragment
+    'openIsolatedPosition(uint256,uint64,(int256,int256,uint256,uint256,uint256,bool,bytes),uint256,bool)': FunctionFragment
     'operator()': FunctionFragment
     'reallocate(uint256)': FunctionFragment
+    'setAutoTransfer(uint256,bool)': FunctionFragment
+    'setLiquidator(address)': FunctionFragment
     'setOperator(address)': FunctionFragment
-    'settleUserBalance(uint256)': FunctionFragment
-    'supplyToken(uint256,uint256)': FunctionFragment
-    'tradePerp(uint256,uint256,(int256,int256,uint256,uint256,uint256,bool,bytes))': FunctionFragment
+    'supplyToken(uint256,uint256,bool)': FunctionFragment
+    'tradePerp(uint256,uint64,(int256,int256,uint256,uint256,uint256,bool,bytes))': FunctionFragment
     'uniswapV3MintCallback(uint256,uint256,bytes)': FunctionFragment
     'uniswapV3SwapCallback(int256,int256,bytes)': FunctionFragment
-    'updateAssetRiskParams(uint256,(uint256,int24,int24))': FunctionFragment
+    'updateAssetRiskParams(uint256,(uint256,int24,int24),bool)': FunctionFragment
     'updateIRMParams(uint256,(uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256))': FunctionFragment
-    'updateMargin(int256)': FunctionFragment
+    'updateMargin(uint64,int256)': FunctionFragment
+    'updateMarginOfIsolated(uint64,uint256,int256,bool)': FunctionFragment
     'vaultCount()': FunctionFragment
-    'withdrawProtocolRevenue(uint256,uint256)': FunctionFragment
-    'withdrawToken(uint256,uint256)': FunctionFragment
+    'withdrawToken(uint256,uint256,bool)': FunctionFragment
   }
 
+  encodeFunctionData(
+    functionFragment: 'addPair',
+    values: [
+      {
+        pairGroupId: BigNumberish
+        uniswapPool: string
+        isIsolatedMode: boolean
+        assetRiskParams: {
+          riskRatio: BigNumberish
+          rangeSize: BigNumberish
+          rebalanceThreshold: BigNumberish
+        }
+        stableIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+        underlyingIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+      }
+    ]
+  ): string
+  encodeFunctionData(
+    functionFragment: 'addPairGroup',
+    values: [string, BigNumberish]
+  ): string
   encodeFunctionData(
     functionFragment: 'allowedUniswapPools',
     values: [string]
   ): string
   encodeFunctionData(
-    functionFragment: 'closeIsolatedVault',
+    functionFragment: 'closeIsolatedPosition',
     values: [
       BigNumberish,
       BigNumberish,
       {
+        tradeAmount: BigNumberish
+        tradeAmountSqrt: BigNumberish
         lowerSqrtPrice: BigNumberish
         upperSqrtPrice: BigNumberish
         deadline: BigNumberish
-      }
+        enableCallback: boolean
+        data: BytesLike
+      },
+      BigNumberish
     ]
   ): string
   encodeFunctionData(
@@ -72,11 +112,11 @@ interface ControllerInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string
   encodeFunctionData(
-    functionFragment: 'getAssetGroup',
-    values?: undefined
+    functionFragment: 'getLatestAssetStatus',
+    values: [BigNumberish]
   ): string
   encodeFunctionData(
-    functionFragment: 'getLatestAssetStatus',
+    functionFragment: 'getPairGroup',
     values: [BigNumberish]
   ): string
   encodeFunctionData(
@@ -85,10 +125,6 @@ interface ControllerInterface extends ethers.utils.Interface {
   ): string
   encodeFunctionData(
     functionFragment: 'getSqrtPrice',
-    values: [BigNumberish]
-  ): string
-  encodeFunctionData(
-    functionFragment: 'getUtilizationRatio',
     values: [BigNumberish]
   ): string
   encodeFunctionData(
@@ -101,46 +137,17 @@ interface ControllerInterface extends ethers.utils.Interface {
   ): string
   encodeFunctionData(
     functionFragment: 'getVaultStatusWithAddress',
-    values?: undefined
+    values: [BigNumberish]
   ): string
-  encodeFunctionData(
-    functionFragment: 'initialize',
-    values: [
-      string,
-      {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      },
-      {
-        uniswapPool: string
-        assetRiskParams: {
-          riskRatio: BigNumberish
-          rangeSize: BigNumberish
-          rebalanceThreshold: BigNumberish
-        }
-        irmParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-        squartIRMParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-      }[]
-    ]
-  ): string
+  encodeFunctionData(functionFragment: 'globalData', values?: undefined): string
+  encodeFunctionData(functionFragment: 'initialize', values?: undefined): string
   encodeFunctionData(
     functionFragment: 'liquidationCall',
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string
+  encodeFunctionData(functionFragment: 'liquidator', values?: undefined): string
   encodeFunctionData(
-    functionFragment: 'openIsolatedVault',
+    functionFragment: 'openIsolatedPosition',
     values: [
       BigNumberish,
       BigNumberish,
@@ -152,7 +159,9 @@ interface ControllerInterface extends ethers.utils.Interface {
         deadline: BigNumberish
         enableCallback: boolean
         data: BytesLike
-      }
+      },
+      BigNumberish,
+      boolean
     ]
   ): string
   encodeFunctionData(functionFragment: 'operator', values?: undefined): string
@@ -160,14 +169,18 @@ interface ControllerInterface extends ethers.utils.Interface {
     functionFragment: 'reallocate',
     values: [BigNumberish]
   ): string
-  encodeFunctionData(functionFragment: 'setOperator', values: [string]): string
   encodeFunctionData(
-    functionFragment: 'settleUserBalance',
-    values: [BigNumberish]
+    functionFragment: 'setAutoTransfer',
+    values: [BigNumberish, boolean]
   ): string
   encodeFunctionData(
+    functionFragment: 'setLiquidator',
+    values: [string]
+  ): string
+  encodeFunctionData(functionFragment: 'setOperator', values: [string]): string
+  encodeFunctionData(
     functionFragment: 'supplyToken',
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, boolean]
   ): string
   encodeFunctionData(
     functionFragment: 'tradePerp',
@@ -201,7 +214,8 @@ interface ControllerInterface extends ethers.utils.Interface {
         riskRatio: BigNumberish
         rangeSize: BigNumberish
         rebalanceThreshold: BigNumberish
-      }
+      },
+      boolean
     ]
   ): string
   encodeFunctionData(
@@ -224,33 +238,38 @@ interface ControllerInterface extends ethers.utils.Interface {
   ): string
   encodeFunctionData(
     functionFragment: 'updateMargin',
-    values: [BigNumberish]
+    values: [BigNumberish, BigNumberish]
+  ): string
+  encodeFunctionData(
+    functionFragment: 'updateMarginOfIsolated',
+    values: [BigNumberish, BigNumberish, BigNumberish, boolean]
   ): string
   encodeFunctionData(functionFragment: 'vaultCount', values?: undefined): string
   encodeFunctionData(
-    functionFragment: 'withdrawProtocolRevenue',
-    values: [BigNumberish, BigNumberish]
-  ): string
-  encodeFunctionData(
     functionFragment: 'withdrawToken',
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, boolean]
   ): string
 
+  decodeFunctionResult(functionFragment: 'addPair', data: BytesLike): Result
+  decodeFunctionResult(
+    functionFragment: 'addPairGroup',
+    data: BytesLike
+  ): Result
   decodeFunctionResult(
     functionFragment: 'allowedUniswapPools',
     data: BytesLike
   ): Result
   decodeFunctionResult(
-    functionFragment: 'closeIsolatedVault',
+    functionFragment: 'closeIsolatedPosition',
     data: BytesLike
   ): Result
   decodeFunctionResult(functionFragment: 'getAsset', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: 'getAssetGroup',
+    functionFragment: 'getLatestAssetStatus',
     data: BytesLike
   ): Result
   decodeFunctionResult(
-    functionFragment: 'getLatestAssetStatus',
+    functionFragment: 'getPairGroup',
     data: BytesLike
   ): Result
   decodeFunctionResult(
@@ -259,10 +278,6 @@ interface ControllerInterface extends ethers.utils.Interface {
   ): Result
   decodeFunctionResult(
     functionFragment: 'getSqrtPrice',
-    data: BytesLike
-  ): Result
-  decodeFunctionResult(
-    functionFragment: 'getUtilizationRatio',
     data: BytesLike
   ): Result
   decodeFunctionResult(functionFragment: 'getVault', data: BytesLike): Result
@@ -274,22 +289,28 @@ interface ControllerInterface extends ethers.utils.Interface {
     functionFragment: 'getVaultStatusWithAddress',
     data: BytesLike
   ): Result
+  decodeFunctionResult(functionFragment: 'globalData', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result
   decodeFunctionResult(
     functionFragment: 'liquidationCall',
     data: BytesLike
   ): Result
+  decodeFunctionResult(functionFragment: 'liquidator', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: 'openIsolatedVault',
+    functionFragment: 'openIsolatedPosition',
     data: BytesLike
   ): Result
   decodeFunctionResult(functionFragment: 'operator', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'reallocate', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setOperator', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: 'settleUserBalance',
+    functionFragment: 'setAutoTransfer',
     data: BytesLike
   ): Result
+  decodeFunctionResult(
+    functionFragment: 'setLiquidator',
+    data: BytesLike
+  ): Result
+  decodeFunctionResult(functionFragment: 'setOperator', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'supplyToken', data: BytesLike): Result
   decodeFunctionResult(functionFragment: 'tradePerp', data: BytesLike): Result
   decodeFunctionResult(
@@ -312,113 +333,34 @@ interface ControllerInterface extends ethers.utils.Interface {
     functionFragment: 'updateMargin',
     data: BytesLike
   ): Result
-  decodeFunctionResult(functionFragment: 'vaultCount', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: 'withdrawProtocolRevenue',
+    functionFragment: 'updateMarginOfIsolated',
     data: BytesLike
   ): Result
+  decodeFunctionResult(functionFragment: 'vaultCount', data: BytesLike): Result
   decodeFunctionResult(
     functionFragment: 'withdrawToken',
     data: BytesLike
   ): Result
 
   events: {
-    'AssetGroupInitialized(uint256,uint256[])': EventFragment
-    'AssetRiskParamsUpdated(uint256,tuple)': EventFragment
-    'IRMParamsUpdated(uint256,tuple,tuple)': EventFragment
     'Initialized(uint8)': EventFragment
+    'LiquidatorUpdated(address)': EventFragment
     'OperatorUpdated(address)': EventFragment
-    'PairAdded(uint256,address)': EventFragment
-    'ProtocolRevenueWithdrawn(uint256,uint256)': EventFragment
-    'VaultCreated(uint256,address,bool)': EventFragment
   }
 
-  getEvent(nameOrSignatureOrTopic: 'AssetGroupInitialized'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'AssetRiskParamsUpdated'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'IRMParamsUpdated'): EventFragment
   getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'LiquidatorUpdated'): EventFragment
   getEvent(nameOrSignatureOrTopic: 'OperatorUpdated'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'PairAdded'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'ProtocolRevenueWithdrawn'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'VaultCreated'): EventFragment
 }
-
-export type AssetGroupInitializedEvent = TypedEvent<
-  [BigNumber, BigNumber[]] & { stableAssetId: BigNumber; assetIds: BigNumber[] }
->
-
-export type AssetRiskParamsUpdatedEvent = TypedEvent<
-  [
-    BigNumber,
-    [BigNumber, number, number] & {
-      riskRatio: BigNumber
-      rangeSize: number
-      rebalanceThreshold: number
-    }
-  ] & {
-    assetId: BigNumber
-    riskParams: [BigNumber, number, number] & {
-      riskRatio: BigNumber
-      rangeSize: number
-      rebalanceThreshold: number
-    }
-  }
->
-
-export type IRMParamsUpdatedEvent = TypedEvent<
-  [
-    BigNumber,
-    [BigNumber, BigNumber, BigNumber, BigNumber] & {
-      baseRate: BigNumber
-      kinkRate: BigNumber
-      slope1: BigNumber
-      slope2: BigNumber
-    },
-    [BigNumber, BigNumber, BigNumber, BigNumber] & {
-      baseRate: BigNumber
-      kinkRate: BigNumber
-      slope1: BigNumber
-      slope2: BigNumber
-    }
-  ] & {
-    assetId: BigNumber
-    irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-      baseRate: BigNumber
-      kinkRate: BigNumber
-      slope1: BigNumber
-      slope2: BigNumber
-    }
-    squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-      baseRate: BigNumber
-      kinkRate: BigNumber
-      slope1: BigNumber
-      slope2: BigNumber
-    }
-  }
->
 
 export type InitializedEvent = TypedEvent<[number] & { version: number }>
 
+export type LiquidatorUpdatedEvent = TypedEvent<
+  [string] & { liquidator: string }
+>
+
 export type OperatorUpdatedEvent = TypedEvent<[string] & { operator: string }>
-
-export type PairAddedEvent = TypedEvent<
-  [BigNumber, string] & { assetId: BigNumber; _uniswapPool: string }
->
-
-export type ProtocolRevenueWithdrawnEvent = TypedEvent<
-  [BigNumber, BigNumber] & {
-    assetId: BigNumber
-    withdrawnProtocolFee: BigNumber
-  }
->
-
-export type VaultCreatedEvent = TypedEvent<
-  [BigNumber, string, boolean] & {
-    vaultId: BigNumber
-    owner: string
-    isMainVault: boolean
-  }
->
 
 export class Controller extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this
@@ -464,19 +406,56 @@ export class Controller extends BaseContract {
   interface: ControllerInterface
 
   functions: {
+    addPair(
+      _addPairParam: {
+        pairGroupId: BigNumberish
+        uniswapPool: string
+        isIsolatedMode: boolean
+        assetRiskParams: {
+          riskRatio: BigNumberish
+          rangeSize: BigNumberish
+          rebalanceThreshold: BigNumberish
+        }
+        stableIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+        underlyingIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+      },
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>
+
+    addPairGroup(
+      _stableAssetAddress: string,
+      _marginRounder: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>
+
     allowedUniswapPools(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>
 
-    closeIsolatedVault(
-      _isolatedVaultId: BigNumberish,
-      _assetId: BigNumberish,
-      _closeParams: {
+    closeIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
+      _tradeParams: {
+        tradeAmount: BigNumberish
+        tradeAmountSqrt: BigNumberish
         lowerSqrtPrice: BigNumberish
         upperSqrtPrice: BigNumberish
         deadline: BigNumberish
+        enableCallback: boolean
+        data: BytesLike
       },
+      _withdrawAmount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
@@ -487,36 +466,118 @@ export class Controller extends BaseContract {
       [
         [
           BigNumber,
-          string,
-          string,
+          BigNumber,
+          [
+            string,
+            string,
+            [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            },
+            [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          ] & {
+            token: string
+            supplyTokenAddress: string
+            tokenStatus: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            }
+            irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          },
+          [
+            string,
+            string,
+            [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            },
+            [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          ] & {
+            token: string
+            supplyTokenAddress: string
+            tokenStatus: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            }
+            irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          },
           [BigNumber, number, number] & {
             riskRatio: BigNumber
             rangeSize: number
             rebalanceThreshold: number
           },
           [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            totalCompoundDeposited: BigNumber
-            totalCompoundBorrowed: BigNumber
-            totalNormalDeposited: BigNumber
-            totalNormalBorrowed: BigNumber
-            assetScaler: BigNumber
-            debtScaler: BigNumber
-            assetGrowth: BigNumber
-            debtGrowth: BigNumber
-          },
-          [
             string,
             number,
             number,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -537,10 +598,14 @@ export class Controller extends BaseContract {
             uniswapPool: string
             tickLower: number
             tickUpper: number
+            numRebalance: BigNumber
             totalAmount: BigNumber
             borrowedAmount: BigNumber
-            supplyPremiumGrowth: BigNumber
-            borrowPremiumGrowth: BigNumber
+            lastRebalanceTotalSquartAmount: BigNumber
+            lastFee0Growth: BigNumber
+            lastFee1Growth: BigNumber
+            borrowPremium0Growth: BigNumber
+            borrowPremium1Growth: BigNumber
             fee0Growth: BigNumber
             fee1Growth: BigNumber
             rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -555,52 +620,122 @@ export class Controller extends BaseContract {
             rebalanceFeeGrowthStable: BigNumber
           },
           boolean,
-          [BigNumber, BigNumber, BigNumber, BigNumber] & {
-            baseRate: BigNumber
-            kinkRate: BigNumber
-            slope1: BigNumber
-            slope2: BigNumber
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber] & {
-            baseRate: BigNumber
-            kinkRate: BigNumber
-            slope1: BigNumber
-            slope2: BigNumber
-          },
-          BigNumber,
+          boolean,
           BigNumber
         ] & {
           id: BigNumber
-          token: string
-          supplyTokenAddress: string
+          pairGroupId: BigNumber
+          stablePool: [
+            string,
+            string,
+            [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            },
+            [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          ] & {
+            token: string
+            supplyTokenAddress: string
+            tokenStatus: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            }
+            irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          }
+          underlyingPool: [
+            string,
+            string,
+            [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            },
+            [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          ] & {
+            token: string
+            supplyTokenAddress: string
+            tokenStatus: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber
+            ] & {
+              totalCompoundDeposited: BigNumber
+              totalNormalDeposited: BigNumber
+              totalNormalBorrowed: BigNumber
+              assetScaler: BigNumber
+              assetGrowth: BigNumber
+              debtGrowth: BigNumber
+            }
+            irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+              baseRate: BigNumber
+              kinkRate: BigNumber
+              slope1: BigNumber
+              slope2: BigNumber
+            }
+          }
           riskParams: [BigNumber, number, number] & {
             riskRatio: BigNumber
             rangeSize: number
             rebalanceThreshold: number
           }
-          tokenStatus: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            totalCompoundDeposited: BigNumber
-            totalCompoundBorrowed: BigNumber
-            totalNormalDeposited: BigNumber
-            totalNormalBorrowed: BigNumber
-            assetScaler: BigNumber
-            debtScaler: BigNumber
-            assetGrowth: BigNumber
-            debtGrowth: BigNumber
-          }
           sqrtAssetStatus: [
             string,
             number,
             number,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -621,10 +756,14 @@ export class Controller extends BaseContract {
             uniswapPool: string
             tickLower: number
             tickUpper: number
+            numRebalance: BigNumber
             totalAmount: BigNumber
             borrowedAmount: BigNumber
-            supplyPremiumGrowth: BigNumber
-            borrowPremiumGrowth: BigNumber
+            lastRebalanceTotalSquartAmount: BigNumber
+            lastFee0Growth: BigNumber
+            lastFee1Growth: BigNumber
+            borrowPremium0Growth: BigNumber
+            borrowPremium1Growth: BigNumber
             fee0Growth: BigNumber
             fee1Growth: BigNumber
             rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -639,29 +778,8 @@ export class Controller extends BaseContract {
             rebalanceFeeGrowthStable: BigNumber
           }
           isMarginZero: boolean
-          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-            baseRate: BigNumber
-            kinkRate: BigNumber
-            slope1: BigNumber
-            slope2: BigNumber
-          }
-          squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-            baseRate: BigNumber
-            kinkRate: BigNumber
-            slope1: BigNumber
-            slope2: BigNumber
-          }
+          isIsolatedMode: boolean
           lastUpdateTimestamp: BigNumber
-          accumulatedProtocolRevenue: BigNumber
-        }
-      ]
-    >
-
-    getAssetGroup(overrides?: CallOverrides): Promise<
-      [
-        [BigNumber, BigNumber[]] & {
-          stableAssetId: BigNumber
-          assetIds: BigNumber[]
         }
       ]
     >
@@ -670,6 +788,19 @@ export class Controller extends BaseContract {
       _id: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
+
+    getPairGroup(
+      _id: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [BigNumber, string, number] & {
+          id: BigNumber
+          stableTokenAddress: string
+          marginRoundedDecimal: number
+        }
+      ]
+    >
 
     getSqrtIndexPrice(
       _tokenId: BigNumberish,
@@ -681,11 +812,6 @@ export class Controller extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>
 
-    getUtilizationRatio(
-      _tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>
-
     getVault(
       _id: BigNumberish,
       overrides?: CallOverrides
@@ -693,296 +819,144 @@ export class Controller extends BaseContract {
       [
         [
           BigNumber,
+          BigNumber,
           string,
           BigNumber,
+          boolean,
           ([
             BigNumber,
+            number,
+            number,
+            BigNumber,
+            [BigNumber, BigNumber] & {
+              amount: BigNumber
+              entryValue: BigNumber
+            },
             [
-              [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              },
-              [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
               BigNumber,
               BigNumber
             ] & {
-              perp: [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              }
-              sqrtPerp: [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              }
-              underlying: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              stable: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
+              amount: BigNumber
+              entryValue: BigNumber
+              stableRebalanceEntryValue: BigNumber
+              underlyingRebalanceEntryValue: BigNumber
+              entryTradeFee0: BigNumber
+              entryTradeFee1: BigNumber
+            },
+            [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
+            },
+            [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
             }
           ] & {
-            assetId: BigNumber
-            perpTrade: [
-              [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              },
-              [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
+            pairId: BigNumber
+            rebalanceLastTickLower: number
+            rebalanceLastTickUpper: number
+            lastNumRebalance: BigNumber
+            perp: [BigNumber, BigNumber] & {
+              amount: BigNumber
+              entryValue: BigNumber
+            }
+            sqrtPerp: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
               BigNumber,
               BigNumber
             ] & {
-              perp: [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              }
-              sqrtPerp: [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              }
-              underlying: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              stable: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
+              amount: BigNumber
+              entryValue: BigNumber
+              stableRebalanceEntryValue: BigNumber
+              underlyingRebalanceEntryValue: BigNumber
+              entryTradeFee0: BigNumber
+              entryTradeFee1: BigNumber
+            }
+            underlying: [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
+            }
+            stable: [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
             }
           })[]
         ] & {
           id: BigNumber
+          pairGroupId: BigNumber
           owner: string
           margin: BigNumber
+          autoTransferDisabled: boolean
           openPositions: ([
             BigNumber,
+            number,
+            number,
+            BigNumber,
+            [BigNumber, BigNumber] & {
+              amount: BigNumber
+              entryValue: BigNumber
+            },
             [
-              [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              },
-              [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
               BigNumber,
               BigNumber
             ] & {
-              perp: [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              }
-              sqrtPerp: [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              }
-              underlying: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              stable: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
+              amount: BigNumber
+              entryValue: BigNumber
+              stableRebalanceEntryValue: BigNumber
+              underlyingRebalanceEntryValue: BigNumber
+              entryTradeFee0: BigNumber
+              entryTradeFee1: BigNumber
+            },
+            [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
+            },
+            [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
             }
           ] & {
-            assetId: BigNumber
-            perpTrade: [
-              [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              },
-              [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
+            pairId: BigNumber
+            rebalanceLastTickLower: number
+            rebalanceLastTickUpper: number
+            lastNumRebalance: BigNumber
+            perp: [BigNumber, BigNumber] & {
+              amount: BigNumber
+              entryValue: BigNumber
+            }
+            sqrtPerp: [
+              BigNumber,
+              BigNumber,
+              BigNumber,
+              BigNumber,
               BigNumber,
               BigNumber
             ] & {
-              perp: [BigNumber, BigNumber] & {
-                amount: BigNumber
-                entryValue: BigNumber
-              }
-              sqrtPerp: [
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber,
-                BigNumber
-              ] & {
-                amount: BigNumber
-                entryValue: BigNumber
-                stableRebalanceEntryValue: BigNumber
-                underlyingRebalanceEntryValue: BigNumber
-                entryTradeFee0: BigNumber
-                entryTradeFee1: BigNumber
-                entryPremium: BigNumber
-              }
-              underlying: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              stable: [BigNumber, BigNumber] & {
-                positionAmount: BigNumber
-                lastFeeGrowth: BigNumber
-              }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
+              amount: BigNumber
+              entryValue: BigNumber
+              stableRebalanceEntryValue: BigNumber
+              underlyingRebalanceEntryValue: BigNumber
+              entryTradeFee0: BigNumber
+              entryTradeFee1: BigNumber
+            }
+            underlying: [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
+            }
+            stable: [BigNumber, BigNumber] & {
+              positionAmount: BigNumber
+              lastFeeGrowth: BigNumber
             }
           })[]
         }
@@ -995,49 +969,34 @@ export class Controller extends BaseContract {
     ): Promise<ContractTransaction>
 
     getVaultStatusWithAddress(
+      _pairGroupId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
+    globalData(overrides?: CallOverrides): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        pairGroupsCount: BigNumber
+        pairsCount: BigNumber
+        vaultCount: BigNumber
+      }
+    >
+
     initialize(
-      _stableAssetAddress: string,
-      _irmParams: {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      },
-      _addAssetParams: {
-        uniswapPool: string
-        assetRiskParams: {
-          riskRatio: BigNumberish
-          rangeSize: BigNumberish
-          rebalanceThreshold: BigNumberish
-        }
-        irmParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-        squartIRMParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-      }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
     liquidationCall(
       _vaultId: BigNumberish,
       _closeRatio: BigNumberish,
+      _sqrtSlippageTolerance: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
-    openIsolatedVault(
-      _depositAmount: BigNumberish,
-      _assetId: BigNumberish,
+    liquidator(overrides?: CallOverrides): Promise<[string]>
+
+    openIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -1047,13 +1006,26 @@ export class Controller extends BaseContract {
         enableCallback: boolean
         data: BytesLike
       },
+      _depositAmount: BigNumberish,
+      _revertOnDupPair: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
     operator(overrides?: CallOverrides): Promise<[string]>
 
     reallocate(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>
+
+    setAutoTransfer(
+      _isolatedVaultId: BigNumberish,
+      _autoTransferDisabled: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>
+
+    setLiquidator(
+      _newLiquidator: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
@@ -1062,20 +1034,16 @@ export class Controller extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
-    settleUserBalance(
-      _vaultId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>
-
     supplyToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
     tradePerp(
       _vaultId: BigNumberish,
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -1103,24 +1071,25 @@ export class Controller extends BaseContract {
     ): Promise<ContractTransaction>
 
     updateAssetRiskParams(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _riskParams: {
         riskRatio: BigNumberish
         rangeSize: BigNumberish
         rebalanceThreshold: BigNumberish
       },
+      _changeToIsolatedMode: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
     updateIRMParams(
-      _assetId: BigNumberish,
-      _irmParams: {
+      _pairId: BigNumberish,
+      _stableIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
         slope2: BigNumberish
       },
-      _squartIRMParams: {
+      _underlyingIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
@@ -1130,35 +1099,76 @@ export class Controller extends BaseContract {
     ): Promise<ContractTransaction>
 
     updateMargin(
+      _pairGroupId: BigNumberish,
       _marginAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>
+
+    updateMarginOfIsolated(
+      _pairGroupId: BigNumberish,
+      _isolatedVaultId: BigNumberish,
+      _marginAmount: BigNumberish,
+      _moveFromMainVault: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
 
     vaultCount(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    withdrawProtocolRevenue(
-      _assetId: BigNumberish,
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>
-
     withdrawToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>
   }
 
+  addPair(
+    _addPairParam: {
+      pairGroupId: BigNumberish
+      uniswapPool: string
+      isIsolatedMode: boolean
+      assetRiskParams: {
+        riskRatio: BigNumberish
+        rangeSize: BigNumberish
+        rebalanceThreshold: BigNumberish
+      }
+      stableIrmParams: {
+        baseRate: BigNumberish
+        kinkRate: BigNumberish
+        slope1: BigNumberish
+        slope2: BigNumberish
+      }
+      underlyingIrmParams: {
+        baseRate: BigNumberish
+        kinkRate: BigNumberish
+        slope1: BigNumberish
+        slope2: BigNumberish
+      }
+    },
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>
+
+  addPairGroup(
+    _stableAssetAddress: string,
+    _marginRounder: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>
+
   allowedUniswapPools(arg0: string, overrides?: CallOverrides): Promise<boolean>
 
-  closeIsolatedVault(
-    _isolatedVaultId: BigNumberish,
-    _assetId: BigNumberish,
-    _closeParams: {
+  closeIsolatedPosition(
+    _vaultId: BigNumberish,
+    _pairId: BigNumberish,
+    _tradeParams: {
+      tradeAmount: BigNumberish
+      tradeAmountSqrt: BigNumberish
       lowerSqrtPrice: BigNumberish
       upperSqrtPrice: BigNumberish
       deadline: BigNumberish
+      enableCallback: boolean
+      data: BytesLike
     },
+    _withdrawAmount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
@@ -1168,36 +1178,104 @@ export class Controller extends BaseContract {
   ): Promise<
     [
       BigNumber,
-      string,
-      string,
+      BigNumber,
+      [
+        string,
+        string,
+        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        },
+        [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      ] & {
+        token: string
+        supplyTokenAddress: string
+        tokenStatus: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        }
+        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      },
+      [
+        string,
+        string,
+        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        },
+        [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      ] & {
+        token: string
+        supplyTokenAddress: string
+        tokenStatus: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        }
+        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      },
       [BigNumber, number, number] & {
         riskRatio: BigNumber
         rangeSize: number
         rebalanceThreshold: number
       },
       [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
-        totalCompoundDeposited: BigNumber
-        totalCompoundBorrowed: BigNumber
-        totalNormalDeposited: BigNumber
-        totalNormalBorrowed: BigNumber
-        assetScaler: BigNumber
-        debtScaler: BigNumber
-        assetGrowth: BigNumber
-        debtGrowth: BigNumber
-      },
-      [
         string,
         number,
         number,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -1218,10 +1296,14 @@ export class Controller extends BaseContract {
         uniswapPool: string
         tickLower: number
         tickUpper: number
+        numRebalance: BigNumber
         totalAmount: BigNumber
         borrowedAmount: BigNumber
-        supplyPremiumGrowth: BigNumber
-        borrowPremiumGrowth: BigNumber
+        lastRebalanceTotalSquartAmount: BigNumber
+        lastFee0Growth: BigNumber
+        lastFee1Growth: BigNumber
+        borrowPremium0Growth: BigNumber
+        borrowPremium1Growth: BigNumber
         fee0Growth: BigNumber
         fee1Growth: BigNumber
         rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -1236,52 +1318,108 @@ export class Controller extends BaseContract {
         rebalanceFeeGrowthStable: BigNumber
       },
       boolean,
-      [BigNumber, BigNumber, BigNumber, BigNumber] & {
-        baseRate: BigNumber
-        kinkRate: BigNumber
-        slope1: BigNumber
-        slope2: BigNumber
-      },
-      [BigNumber, BigNumber, BigNumber, BigNumber] & {
-        baseRate: BigNumber
-        kinkRate: BigNumber
-        slope1: BigNumber
-        slope2: BigNumber
-      },
-      BigNumber,
+      boolean,
       BigNumber
     ] & {
       id: BigNumber
-      token: string
-      supplyTokenAddress: string
+      pairGroupId: BigNumber
+      stablePool: [
+        string,
+        string,
+        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        },
+        [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      ] & {
+        token: string
+        supplyTokenAddress: string
+        tokenStatus: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        }
+        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      }
+      underlyingPool: [
+        string,
+        string,
+        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        },
+        [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      ] & {
+        token: string
+        supplyTokenAddress: string
+        tokenStatus: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          totalCompoundDeposited: BigNumber
+          totalNormalDeposited: BigNumber
+          totalNormalBorrowed: BigNumber
+          assetScaler: BigNumber
+          assetGrowth: BigNumber
+          debtGrowth: BigNumber
+        }
+        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+          baseRate: BigNumber
+          kinkRate: BigNumber
+          slope1: BigNumber
+          slope2: BigNumber
+        }
+      }
       riskParams: [BigNumber, number, number] & {
         riskRatio: BigNumber
         rangeSize: number
         rebalanceThreshold: number
       }
-      tokenStatus: [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
-        totalCompoundDeposited: BigNumber
-        totalCompoundBorrowed: BigNumber
-        totalNormalDeposited: BigNumber
-        totalNormalBorrowed: BigNumber
-        assetScaler: BigNumber
-        debtScaler: BigNumber
-        assetGrowth: BigNumber
-        debtGrowth: BigNumber
-      }
       sqrtAssetStatus: [
         string,
         number,
         number,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -1302,10 +1440,14 @@ export class Controller extends BaseContract {
         uniswapPool: string
         tickLower: number
         tickUpper: number
+        numRebalance: BigNumber
         totalAmount: BigNumber
         borrowedAmount: BigNumber
-        supplyPremiumGrowth: BigNumber
-        borrowPremiumGrowth: BigNumber
+        lastRebalanceTotalSquartAmount: BigNumber
+        lastFee0Growth: BigNumber
+        lastFee1Growth: BigNumber
+        borrowPremium0Growth: BigNumber
+        borrowPremium1Growth: BigNumber
         fee0Growth: BigNumber
         fee1Growth: BigNumber
         rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -1320,27 +1462,8 @@ export class Controller extends BaseContract {
         rebalanceFeeGrowthStable: BigNumber
       }
       isMarginZero: boolean
-      irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-        baseRate: BigNumber
-        kinkRate: BigNumber
-        slope1: BigNumber
-        slope2: BigNumber
-      }
-      squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-        baseRate: BigNumber
-        kinkRate: BigNumber
-        slope1: BigNumber
-        slope2: BigNumber
-      }
+      isIsolatedMode: boolean
       lastUpdateTimestamp: BigNumber
-      accumulatedProtocolRevenue: BigNumber
-    }
-  >
-
-  getAssetGroup(overrides?: CallOverrides): Promise<
-    [BigNumber, BigNumber[]] & {
-      stableAssetId: BigNumber
-      assetIds: BigNumber[]
     }
   >
 
@@ -1348,6 +1471,17 @@ export class Controller extends BaseContract {
     _id: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
+
+  getPairGroup(
+    _id: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, string, number] & {
+      id: BigNumber
+      stableTokenAddress: string
+      marginRoundedDecimal: number
+    }
+  >
 
   getSqrtIndexPrice(
     _tokenId: BigNumberish,
@@ -1359,295 +1493,130 @@ export class Controller extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>
 
-  getUtilizationRatio(
-    _tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber]>
-
   getVault(
     _id: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
     [
       BigNumber,
+      BigNumber,
       string,
       BigNumber,
+      boolean,
       ([
         BigNumber,
-        [
-          [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
-          [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          number,
-          number,
-          BigNumber,
-          BigNumber
-        ] & {
-          perp: [BigNumber, BigNumber] & {
-            amount: BigNumber
-            entryValue: BigNumber
-          }
-          sqrtPerp: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          }
-          underlying: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          stable: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          rebalanceLastTickLower: number
-          rebalanceLastTickUpper: number
-          rebalanceEntryFeeUnderlying: BigNumber
-          rebalanceEntryFeeStable: BigNumber
+        number,
+        number,
+        BigNumber,
+        [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
+        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          amount: BigNumber
+          entryValue: BigNumber
+          stableRebalanceEntryValue: BigNumber
+          underlyingRebalanceEntryValue: BigNumber
+          entryTradeFee0: BigNumber
+          entryTradeFee1: BigNumber
+        },
+        [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
+        },
+        [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
         }
       ] & {
-        assetId: BigNumber
-        perpTrade: [
-          [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
-          [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          number,
-          number,
+        pairId: BigNumber
+        rebalanceLastTickLower: number
+        rebalanceLastTickUpper: number
+        lastNumRebalance: BigNumber
+        perp: [BigNumber, BigNumber] & {
+          amount: BigNumber
+          entryValue: BigNumber
+        }
+        sqrtPerp: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
           BigNumber,
           BigNumber
         ] & {
-          perp: [BigNumber, BigNumber] & {
-            amount: BigNumber
-            entryValue: BigNumber
-          }
-          sqrtPerp: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          }
-          underlying: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          stable: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          rebalanceLastTickLower: number
-          rebalanceLastTickUpper: number
-          rebalanceEntryFeeUnderlying: BigNumber
-          rebalanceEntryFeeStable: BigNumber
+          amount: BigNumber
+          entryValue: BigNumber
+          stableRebalanceEntryValue: BigNumber
+          underlyingRebalanceEntryValue: BigNumber
+          entryTradeFee0: BigNumber
+          entryTradeFee1: BigNumber
+        }
+        underlying: [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
+        }
+        stable: [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
         }
       })[]
     ] & {
       id: BigNumber
+      pairGroupId: BigNumber
       owner: string
       margin: BigNumber
+      autoTransferDisabled: boolean
       openPositions: ([
         BigNumber,
-        [
-          [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
-          [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          number,
-          number,
-          BigNumber,
-          BigNumber
-        ] & {
-          perp: [BigNumber, BigNumber] & {
-            amount: BigNumber
-            entryValue: BigNumber
-          }
-          sqrtPerp: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          }
-          underlying: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          stable: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          rebalanceLastTickLower: number
-          rebalanceLastTickUpper: number
-          rebalanceEntryFeeUnderlying: BigNumber
-          rebalanceEntryFeeStable: BigNumber
+        number,
+        number,
+        BigNumber,
+        [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
+        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          amount: BigNumber
+          entryValue: BigNumber
+          stableRebalanceEntryValue: BigNumber
+          underlyingRebalanceEntryValue: BigNumber
+          entryTradeFee0: BigNumber
+          entryTradeFee1: BigNumber
+        },
+        [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
+        },
+        [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
         }
       ] & {
-        assetId: BigNumber
-        perpTrade: [
-          [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
-          [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          },
-          number,
-          number,
+        pairId: BigNumber
+        rebalanceLastTickLower: number
+        rebalanceLastTickUpper: number
+        lastNumRebalance: BigNumber
+        perp: [BigNumber, BigNumber] & {
+          amount: BigNumber
+          entryValue: BigNumber
+        }
+        sqrtPerp: [
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
           BigNumber,
           BigNumber
         ] & {
-          perp: [BigNumber, BigNumber] & {
-            amount: BigNumber
-            entryValue: BigNumber
-          }
-          sqrtPerp: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            amount: BigNumber
-            entryValue: BigNumber
-            stableRebalanceEntryValue: BigNumber
-            underlyingRebalanceEntryValue: BigNumber
-            entryTradeFee0: BigNumber
-            entryTradeFee1: BigNumber
-            entryPremium: BigNumber
-          }
-          underlying: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          stable: [BigNumber, BigNumber] & {
-            positionAmount: BigNumber
-            lastFeeGrowth: BigNumber
-          }
-          rebalanceLastTickLower: number
-          rebalanceLastTickUpper: number
-          rebalanceEntryFeeUnderlying: BigNumber
-          rebalanceEntryFeeStable: BigNumber
+          amount: BigNumber
+          entryValue: BigNumber
+          stableRebalanceEntryValue: BigNumber
+          underlyingRebalanceEntryValue: BigNumber
+          entryTradeFee0: BigNumber
+          entryTradeFee1: BigNumber
+        }
+        underlying: [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
+        }
+        stable: [BigNumber, BigNumber] & {
+          positionAmount: BigNumber
+          lastFeeGrowth: BigNumber
         }
       })[]
     }
@@ -1659,49 +1628,34 @@ export class Controller extends BaseContract {
   ): Promise<ContractTransaction>
 
   getVaultStatusWithAddress(
+    _pairGroupId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
+  globalData(overrides?: CallOverrides): Promise<
+    [BigNumber, BigNumber, BigNumber] & {
+      pairGroupsCount: BigNumber
+      pairsCount: BigNumber
+      vaultCount: BigNumber
+    }
+  >
+
   initialize(
-    _stableAssetAddress: string,
-    _irmParams: {
-      baseRate: BigNumberish
-      kinkRate: BigNumberish
-      slope1: BigNumberish
-      slope2: BigNumberish
-    },
-    _addAssetParams: {
-      uniswapPool: string
-      assetRiskParams: {
-        riskRatio: BigNumberish
-        rangeSize: BigNumberish
-        rebalanceThreshold: BigNumberish
-      }
-      irmParams: {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      }
-      squartIRMParams: {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      }
-    }[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
   liquidationCall(
     _vaultId: BigNumberish,
     _closeRatio: BigNumberish,
+    _sqrtSlippageTolerance: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
-  openIsolatedVault(
-    _depositAmount: BigNumberish,
-    _assetId: BigNumberish,
+  liquidator(overrides?: CallOverrides): Promise<string>
+
+  openIsolatedPosition(
+    _vaultId: BigNumberish,
+    _pairId: BigNumberish,
     _tradeParams: {
       tradeAmount: BigNumberish
       tradeAmountSqrt: BigNumberish
@@ -1711,13 +1665,26 @@ export class Controller extends BaseContract {
       enableCallback: boolean
       data: BytesLike
     },
+    _depositAmount: BigNumberish,
+    _revertOnDupPair: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
   operator(overrides?: CallOverrides): Promise<string>
 
   reallocate(
-    _assetId: BigNumberish,
+    _pairId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>
+
+  setAutoTransfer(
+    _isolatedVaultId: BigNumberish,
+    _autoTransferDisabled: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>
+
+  setLiquidator(
+    _newLiquidator: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
@@ -1726,20 +1693,16 @@ export class Controller extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
-  settleUserBalance(
-    _vaultId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>
-
   supplyToken(
-    _assetId: BigNumberish,
+    _pairId: BigNumberish,
     _amount: BigNumberish,
+    _isStable: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
   tradePerp(
     _vaultId: BigNumberish,
-    _assetId: BigNumberish,
+    _pairId: BigNumberish,
     _tradeParams: {
       tradeAmount: BigNumberish
       tradeAmountSqrt: BigNumberish
@@ -1767,24 +1730,25 @@ export class Controller extends BaseContract {
   ): Promise<ContractTransaction>
 
   updateAssetRiskParams(
-    _assetId: BigNumberish,
+    _pairId: BigNumberish,
     _riskParams: {
       riskRatio: BigNumberish
       rangeSize: BigNumberish
       rebalanceThreshold: BigNumberish
     },
+    _changeToIsolatedMode: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
   updateIRMParams(
-    _assetId: BigNumberish,
-    _irmParams: {
+    _pairId: BigNumberish,
+    _stableIrmParams: {
       baseRate: BigNumberish
       kinkRate: BigNumberish
       slope1: BigNumberish
       slope2: BigNumberish
     },
-    _squartIRMParams: {
+    _underlyingIrmParams: {
       baseRate: BigNumberish
       kinkRate: BigNumberish
       slope1: BigNumberish
@@ -1794,38 +1758,79 @@ export class Controller extends BaseContract {
   ): Promise<ContractTransaction>
 
   updateMargin(
+    _pairGroupId: BigNumberish,
     _marginAmount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>
+
+  updateMarginOfIsolated(
+    _pairGroupId: BigNumberish,
+    _isolatedVaultId: BigNumberish,
+    _marginAmount: BigNumberish,
+    _moveFromMainVault: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
   vaultCount(overrides?: CallOverrides): Promise<BigNumber>
 
-  withdrawProtocolRevenue(
-    _assetId: BigNumberish,
-    _amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>
-
   withdrawToken(
-    _assetId: BigNumberish,
+    _pairId: BigNumberish,
     _amount: BigNumberish,
+    _isStable: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>
 
   callStatic: {
+    addPair(
+      _addPairParam: {
+        pairGroupId: BigNumberish
+        uniswapPool: string
+        isIsolatedMode: boolean
+        assetRiskParams: {
+          riskRatio: BigNumberish
+          rangeSize: BigNumberish
+          rebalanceThreshold: BigNumberish
+        }
+        stableIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+        underlyingIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+      },
+      overrides?: CallOverrides
+    ): Promise<BigNumber>
+
+    addPairGroup(
+      _stableAssetAddress: string,
+      _marginRounder: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>
+
     allowedUniswapPools(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<boolean>
 
-    closeIsolatedVault(
-      _isolatedVaultId: BigNumberish,
-      _assetId: BigNumberish,
-      _closeParams: {
+    closeIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
+      _tradeParams: {
+        tradeAmount: BigNumberish
+        tradeAmountSqrt: BigNumberish
         lowerSqrtPrice: BigNumberish
         upperSqrtPrice: BigNumberish
         deadline: BigNumberish
+        enableCallback: boolean
+        data: BytesLike
       },
+      _withdrawAmount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1866,36 +1871,104 @@ export class Controller extends BaseContract {
     ): Promise<
       [
         BigNumber,
-        string,
-        string,
+        BigNumber,
+        [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        },
+        [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        },
         [BigNumber, number, number] & {
           riskRatio: BigNumber
           rangeSize: number
           rebalanceThreshold: number
         },
         [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          totalCompoundDeposited: BigNumber
-          totalCompoundBorrowed: BigNumber
-          totalNormalDeposited: BigNumber
-          totalNormalBorrowed: BigNumber
-          assetScaler: BigNumber
-          debtScaler: BigNumber
-          assetGrowth: BigNumber
-          debtGrowth: BigNumber
-        },
-        [
           string,
           number,
           number,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1916,10 +1989,14 @@ export class Controller extends BaseContract {
           uniswapPool: string
           tickLower: number
           tickUpper: number
+          numRebalance: BigNumber
           totalAmount: BigNumber
           borrowedAmount: BigNumber
-          supplyPremiumGrowth: BigNumber
-          borrowPremiumGrowth: BigNumber
+          lastRebalanceTotalSquartAmount: BigNumber
+          lastFee0Growth: BigNumber
+          lastFee1Growth: BigNumber
+          borrowPremium0Growth: BigNumber
+          borrowPremium1Growth: BigNumber
           fee0Growth: BigNumber
           fee1Growth: BigNumber
           rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -1934,52 +2011,108 @@ export class Controller extends BaseContract {
           rebalanceFeeGrowthStable: BigNumber
         },
         boolean,
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        },
-        BigNumber,
+        boolean,
         BigNumber
       ] & {
         id: BigNumber
-        token: string
-        supplyTokenAddress: string
+        pairGroupId: BigNumber
+        stablePool: [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        }
+        underlyingPool: [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        }
         riskParams: [BigNumber, number, number] & {
           riskRatio: BigNumber
           rangeSize: number
           rebalanceThreshold: number
         }
-        tokenStatus: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          totalCompoundDeposited: BigNumber
-          totalCompoundBorrowed: BigNumber
-          totalNormalDeposited: BigNumber
-          totalNormalBorrowed: BigNumber
-          assetScaler: BigNumber
-          debtScaler: BigNumber
-          assetGrowth: BigNumber
-          debtGrowth: BigNumber
-        }
         sqrtAssetStatus: [
           string,
           number,
           number,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -2000,10 +2133,14 @@ export class Controller extends BaseContract {
           uniswapPool: string
           tickLower: number
           tickUpper: number
+          numRebalance: BigNumber
           totalAmount: BigNumber
           borrowedAmount: BigNumber
-          supplyPremiumGrowth: BigNumber
-          borrowPremiumGrowth: BigNumber
+          lastRebalanceTotalSquartAmount: BigNumber
+          lastFee0Growth: BigNumber
+          lastFee1Growth: BigNumber
+          borrowPremium0Growth: BigNumber
+          borrowPremium1Growth: BigNumber
           fee0Growth: BigNumber
           fee1Growth: BigNumber
           rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -2018,27 +2155,8 @@ export class Controller extends BaseContract {
           rebalanceFeeGrowthStable: BigNumber
         }
         isMarginZero: boolean
-        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-        squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
+        isIsolatedMode: boolean
         lastUpdateTimestamp: BigNumber
-        accumulatedProtocolRevenue: BigNumber
-      }
-    >
-
-    getAssetGroup(overrides?: CallOverrides): Promise<
-      [BigNumber, BigNumber[]] & {
-        stableAssetId: BigNumber
-        assetIds: BigNumber[]
       }
     >
 
@@ -2048,36 +2166,104 @@ export class Controller extends BaseContract {
     ): Promise<
       [
         BigNumber,
-        string,
-        string,
+        BigNumber,
+        [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        },
+        [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        },
         [BigNumber, number, number] & {
           riskRatio: BigNumber
           rangeSize: number
           rebalanceThreshold: number
         },
         [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          totalCompoundDeposited: BigNumber
-          totalCompoundBorrowed: BigNumber
-          totalNormalDeposited: BigNumber
-          totalNormalBorrowed: BigNumber
-          assetScaler: BigNumber
-          debtScaler: BigNumber
-          assetGrowth: BigNumber
-          debtGrowth: BigNumber
-        },
-        [
           string,
           number,
           number,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -2098,10 +2284,14 @@ export class Controller extends BaseContract {
           uniswapPool: string
           tickLower: number
           tickUpper: number
+          numRebalance: BigNumber
           totalAmount: BigNumber
           borrowedAmount: BigNumber
-          supplyPremiumGrowth: BigNumber
-          borrowPremiumGrowth: BigNumber
+          lastRebalanceTotalSquartAmount: BigNumber
+          lastFee0Growth: BigNumber
+          lastFee1Growth: BigNumber
+          borrowPremium0Growth: BigNumber
+          borrowPremium1Growth: BigNumber
           fee0Growth: BigNumber
           fee1Growth: BigNumber
           rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -2116,52 +2306,108 @@ export class Controller extends BaseContract {
           rebalanceFeeGrowthStable: BigNumber
         },
         boolean,
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        },
-        BigNumber,
+        boolean,
         BigNumber
       ] & {
         id: BigNumber
-        token: string
-        supplyTokenAddress: string
+        pairGroupId: BigNumber
+        stablePool: [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        }
+        underlyingPool: [
+          string,
+          string,
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          },
+          [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        ] & {
+          token: string
+          supplyTokenAddress: string
+          tokenStatus: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            totalCompoundDeposited: BigNumber
+            totalNormalDeposited: BigNumber
+            totalNormalBorrowed: BigNumber
+            assetScaler: BigNumber
+            assetGrowth: BigNumber
+            debtGrowth: BigNumber
+          }
+          irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
+            baseRate: BigNumber
+            kinkRate: BigNumber
+            slope1: BigNumber
+            slope2: BigNumber
+          }
+        }
         riskParams: [BigNumber, number, number] & {
           riskRatio: BigNumber
           rangeSize: number
           rebalanceThreshold: number
         }
-        tokenStatus: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          totalCompoundDeposited: BigNumber
-          totalCompoundBorrowed: BigNumber
-          totalNormalDeposited: BigNumber
-          totalNormalBorrowed: BigNumber
-          assetScaler: BigNumber
-          debtScaler: BigNumber
-          assetGrowth: BigNumber
-          debtGrowth: BigNumber
-        }
         sqrtAssetStatus: [
           string,
           number,
           number,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -2182,10 +2428,14 @@ export class Controller extends BaseContract {
           uniswapPool: string
           tickLower: number
           tickUpper: number
+          numRebalance: BigNumber
           totalAmount: BigNumber
           borrowedAmount: BigNumber
-          supplyPremiumGrowth: BigNumber
-          borrowPremiumGrowth: BigNumber
+          lastRebalanceTotalSquartAmount: BigNumber
+          lastFee0Growth: BigNumber
+          lastFee1Growth: BigNumber
+          borrowPremium0Growth: BigNumber
+          borrowPremium1Growth: BigNumber
           fee0Growth: BigNumber
           fee1Growth: BigNumber
           rebalancePositionUnderlying: [BigNumber, BigNumber] & {
@@ -2200,20 +2450,19 @@ export class Controller extends BaseContract {
           rebalanceFeeGrowthStable: BigNumber
         }
         isMarginZero: boolean
-        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-        squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
+        isIsolatedMode: boolean
         lastUpdateTimestamp: BigNumber
-        accumulatedProtocolRevenue: BigNumber
+      }
+    >
+
+    getPairGroup(
+      _id: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, number] & {
+        id: BigNumber
+        stableTokenAddress: string
+        marginRoundedDecimal: number
       }
     >
 
@@ -2227,307 +2476,130 @@ export class Controller extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>
 
-    getUtilizationRatio(
-      _tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>
-
     getVault(
       _id: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [
         BigNumber,
+        BigNumber,
         string,
         BigNumber,
+        boolean,
         ([
           BigNumber,
-          [
-            [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            },
-            [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
-            BigNumber,
-            BigNumber
-          ] & {
-            perp: [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            }
-            sqrtPerp: [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            }
-            underlying: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            stable: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
+          number,
+          number,
+          BigNumber,
+          [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            amount: BigNumber
+            entryValue: BigNumber
+            stableRebalanceEntryValue: BigNumber
+            underlyingRebalanceEntryValue: BigNumber
+            entryTradeFee0: BigNumber
+            entryTradeFee1: BigNumber
+          },
+          [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
+          },
+          [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
           }
         ] & {
-          assetId: BigNumber
-          perpTrade: [
-            [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            },
-            [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
+          pairId: BigNumber
+          rebalanceLastTickLower: number
+          rebalanceLastTickUpper: number
+          lastNumRebalance: BigNumber
+          perp: [BigNumber, BigNumber] & {
+            amount: BigNumber
+            entryValue: BigNumber
+          }
+          sqrtPerp: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
             BigNumber,
             BigNumber
           ] & {
-            perp: [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            }
-            sqrtPerp: [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            }
-            underlying: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            stable: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
+            amount: BigNumber
+            entryValue: BigNumber
+            stableRebalanceEntryValue: BigNumber
+            underlyingRebalanceEntryValue: BigNumber
+            entryTradeFee0: BigNumber
+            entryTradeFee1: BigNumber
+          }
+          underlying: [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
+          }
+          stable: [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
           }
         })[]
       ] & {
         id: BigNumber
+        pairGroupId: BigNumber
         owner: string
         margin: BigNumber
+        autoTransferDisabled: boolean
         openPositions: ([
           BigNumber,
-          [
-            [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            },
-            [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
-            BigNumber,
-            BigNumber
-          ] & {
-            perp: [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            }
-            sqrtPerp: [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            }
-            underlying: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            stable: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
+          number,
+          number,
+          BigNumber,
+          [BigNumber, BigNumber] & { amount: BigNumber; entryValue: BigNumber },
+          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+            amount: BigNumber
+            entryValue: BigNumber
+            stableRebalanceEntryValue: BigNumber
+            underlyingRebalanceEntryValue: BigNumber
+            entryTradeFee0: BigNumber
+            entryTradeFee1: BigNumber
+          },
+          [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
+          },
+          [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
           }
         ] & {
-          assetId: BigNumber
-          perpTrade: [
-            [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            },
-            [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
+          pairId: BigNumber
+          rebalanceLastTickLower: number
+          rebalanceLastTickUpper: number
+          lastNumRebalance: BigNumber
+          perp: [BigNumber, BigNumber] & {
+            amount: BigNumber
+            entryValue: BigNumber
+          }
+          sqrtPerp: [
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
             BigNumber,
             BigNumber
           ] & {
-            perp: [BigNumber, BigNumber] & {
-              amount: BigNumber
-              entryValue: BigNumber
-            }
-            sqrtPerp: [
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber,
-              BigNumber
-            ] & {
-              amount: BigNumber
-              entryValue: BigNumber
-              stableRebalanceEntryValue: BigNumber
-              underlyingRebalanceEntryValue: BigNumber
-              entryTradeFee0: BigNumber
-              entryTradeFee1: BigNumber
-              entryPremium: BigNumber
-            }
-            underlying: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            stable: [BigNumber, BigNumber] & {
-              positionAmount: BigNumber
-              lastFeeGrowth: BigNumber
-            }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
+            amount: BigNumber
+            entryValue: BigNumber
+            stableRebalanceEntryValue: BigNumber
+            underlyingRebalanceEntryValue: BigNumber
+            entryTradeFee0: BigNumber
+            entryTradeFee1: BigNumber
+          }
+          underlying: [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
+          }
+          stable: [BigNumber, BigNumber] & {
+            positionAmount: BigNumber
+            lastFeeGrowth: BigNumber
           }
         })[]
       }
@@ -2539,7 +2611,6 @@ export class Controller extends BaseContract {
     ): Promise<
       [
         BigNumber,
-        boolean,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -2547,6 +2618,10 @@ export class Controller extends BaseContract {
         ([
           BigNumber,
           [
+            BigNumber,
+            number,
+            number,
+            BigNumber,
             [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2557,7 +2632,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2566,7 +2640,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             },
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2575,12 +2648,12 @@ export class Controller extends BaseContract {
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
-            BigNumber,
-            BigNumber
+            }
           ] & {
+            pairId: BigNumber
+            rebalanceLastTickLower: number
+            rebalanceLastTickUpper: number
+            lastNumRebalance: BigNumber
             perp: [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2591,7 +2664,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2600,7 +2672,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             }
             underlying: [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2610,16 +2681,16 @@ export class Controller extends BaseContract {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
             }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
           },
           BigNumber,
           BigNumber
         ] & {
-          assetId: BigNumber
+          pairId: BigNumber
           position: [
+            BigNumber,
+            number,
+            number,
+            BigNumber,
             [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2630,7 +2701,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2639,7 +2709,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             },
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2648,12 +2717,12 @@ export class Controller extends BaseContract {
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
-            BigNumber,
-            BigNumber
+            }
           ] & {
+            pairId: BigNumber
+            rebalanceLastTickLower: number
+            rebalanceLastTickUpper: number
+            lastNumRebalance: BigNumber
             perp: [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2664,7 +2733,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2673,7 +2741,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             }
             underlying: [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2683,17 +2750,12 @@ export class Controller extends BaseContract {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
             }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
           }
           delta: BigNumber
           unrealizedFee: BigNumber
         })[]
       ] & {
         vaultId: BigNumber
-        isMainVault: boolean
         vaultValue: BigNumber
         margin: BigNumber
         positionValue: BigNumber
@@ -2701,6 +2763,10 @@ export class Controller extends BaseContract {
         subVaults: ([
           BigNumber,
           [
+            BigNumber,
+            number,
+            number,
+            BigNumber,
             [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2711,7 +2777,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2720,7 +2785,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             },
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2729,12 +2793,12 @@ export class Controller extends BaseContract {
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
-            BigNumber,
-            BigNumber
+            }
           ] & {
+            pairId: BigNumber
+            rebalanceLastTickLower: number
+            rebalanceLastTickUpper: number
+            lastNumRebalance: BigNumber
             perp: [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2745,7 +2809,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2754,7 +2817,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             }
             underlying: [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2764,16 +2826,16 @@ export class Controller extends BaseContract {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
             }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
           },
           BigNumber,
           BigNumber
         ] & {
-          assetId: BigNumber
+          pairId: BigNumber
           position: [
+            BigNumber,
+            number,
+            number,
+            BigNumber,
             [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2784,7 +2846,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2793,7 +2854,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             },
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2802,12 +2862,12 @@ export class Controller extends BaseContract {
             [BigNumber, BigNumber] & {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
-            },
-            number,
-            number,
-            BigNumber,
-            BigNumber
+            }
           ] & {
+            pairId: BigNumber
+            rebalanceLastTickLower: number
+            rebalanceLastTickUpper: number
+            lastNumRebalance: BigNumber
             perp: [BigNumber, BigNumber] & {
               amount: BigNumber
               entryValue: BigNumber
@@ -2818,7 +2878,6 @@ export class Controller extends BaseContract {
               BigNumber,
               BigNumber,
               BigNumber,
-              BigNumber,
               BigNumber
             ] & {
               amount: BigNumber
@@ -2827,7 +2886,6 @@ export class Controller extends BaseContract {
               underlyingRebalanceEntryValue: BigNumber
               entryTradeFee0: BigNumber
               entryTradeFee1: BigNumber
-              entryPremium: BigNumber
             }
             underlying: [BigNumber, BigNumber] & {
               positionAmount: BigNumber
@@ -2837,10 +2895,6 @@ export class Controller extends BaseContract {
               positionAmount: BigNumber
               lastFeeGrowth: BigNumber
             }
-            rebalanceLastTickLower: number
-            rebalanceLastTickUpper: number
-            rebalanceEntryFeeUnderlying: BigNumber
-            rebalanceEntryFeeStable: BigNumber
           }
           delta: BigNumber
           unrealizedFee: BigNumber
@@ -2848,11 +2902,13 @@ export class Controller extends BaseContract {
       }
     >
 
-    getVaultStatusWithAddress(overrides?: CallOverrides): Promise<
+    getVaultStatusWithAddress(
+      _pairGroupId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
       [
         [
           BigNumber,
-          boolean,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -2860,6 +2916,10 @@ export class Controller extends BaseContract {
           ([
             BigNumber,
             [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -2870,7 +2930,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -2879,7 +2938,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -2888,12 +2946,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -2904,7 +2962,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -2913,7 +2970,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -2923,16 +2979,16 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             },
             BigNumber,
             BigNumber
           ] & {
-            assetId: BigNumber
+            pairId: BigNumber
             position: [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -2943,7 +2999,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -2952,7 +3007,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -2961,12 +3015,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -2977,7 +3031,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -2986,7 +3039,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -2996,17 +3048,12 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             }
             delta: BigNumber
             unrealizedFee: BigNumber
           })[]
         ] & {
           vaultId: BigNumber
-          isMainVault: boolean
           vaultValue: BigNumber
           margin: BigNumber
           positionValue: BigNumber
@@ -3014,6 +3061,10 @@ export class Controller extends BaseContract {
           subVaults: ([
             BigNumber,
             [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3024,7 +3075,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3033,7 +3083,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3042,12 +3091,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3058,7 +3107,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3067,7 +3115,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3077,16 +3124,16 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             },
             BigNumber,
             BigNumber
           ] & {
-            assetId: BigNumber
+            pairId: BigNumber
             position: [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3097,7 +3144,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3106,7 +3152,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3115,12 +3160,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3131,7 +3176,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3140,7 +3184,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3150,10 +3193,6 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             }
             delta: BigNumber
             unrealizedFee: BigNumber
@@ -3161,7 +3200,6 @@ export class Controller extends BaseContract {
         },
         ([
           BigNumber,
-          boolean,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -3169,6 +3207,10 @@ export class Controller extends BaseContract {
           ([
             BigNumber,
             [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3179,7 +3221,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3188,7 +3229,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3197,12 +3237,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3213,7 +3253,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3222,7 +3261,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3232,16 +3270,16 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             },
             BigNumber,
             BigNumber
           ] & {
-            assetId: BigNumber
+            pairId: BigNumber
             position: [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3252,7 +3290,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3261,7 +3298,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3270,12 +3306,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3286,7 +3322,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3295,7 +3330,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3305,17 +3339,12 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             }
             delta: BigNumber
             unrealizedFee: BigNumber
           })[]
         ] & {
           vaultId: BigNumber
-          isMainVault: boolean
           vaultValue: BigNumber
           margin: BigNumber
           positionValue: BigNumber
@@ -3323,6 +3352,10 @@ export class Controller extends BaseContract {
           subVaults: ([
             BigNumber,
             [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3333,7 +3366,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3342,7 +3374,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3351,12 +3382,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3367,7 +3398,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3376,7 +3406,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3386,16 +3415,16 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             },
             BigNumber,
             BigNumber
           ] & {
-            assetId: BigNumber
+            pairId: BigNumber
             position: [
+              BigNumber,
+              number,
+              number,
+              BigNumber,
               [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3406,7 +3435,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3415,7 +3443,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               },
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3424,12 +3451,12 @@ export class Controller extends BaseContract {
               [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
-              },
-              number,
-              number,
-              BigNumber,
-              BigNumber
+              }
             ] & {
+              pairId: BigNumber
+              rebalanceLastTickLower: number
+              rebalanceLastTickUpper: number
+              lastNumRebalance: BigNumber
               perp: [BigNumber, BigNumber] & {
                 amount: BigNumber
                 entryValue: BigNumber
@@ -3440,7 +3467,6 @@ export class Controller extends BaseContract {
                 BigNumber,
                 BigNumber,
                 BigNumber,
-                BigNumber,
                 BigNumber
               ] & {
                 amount: BigNumber
@@ -3449,7 +3475,6 @@ export class Controller extends BaseContract {
                 underlyingRebalanceEntryValue: BigNumber
                 entryTradeFee0: BigNumber
                 entryTradeFee1: BigNumber
-                entryPremium: BigNumber
               }
               underlying: [BigNumber, BigNumber] & {
                 positionAmount: BigNumber
@@ -3459,10 +3484,6 @@ export class Controller extends BaseContract {
                 positionAmount: BigNumber
                 lastFeeGrowth: BigNumber
               }
-              rebalanceLastTickLower: number
-              rebalanceLastTickUpper: number
-              rebalanceEntryFeeUnderlying: BigNumber
-              rebalanceEntryFeeStable: BigNumber
             }
             delta: BigNumber
             unrealizedFee: BigNumber
@@ -3471,46 +3492,28 @@ export class Controller extends BaseContract {
       ]
     >
 
-    initialize(
-      _stableAssetAddress: string,
-      _irmParams: {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      },
-      _addAssetParams: {
-        uniswapPool: string
-        assetRiskParams: {
-          riskRatio: BigNumberish
-          rangeSize: BigNumberish
-          rebalanceThreshold: BigNumberish
-        }
-        irmParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-        squartIRMParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-      }[],
-      overrides?: CallOverrides
-    ): Promise<void>
+    globalData(overrides?: CallOverrides): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        pairGroupsCount: BigNumber
+        pairsCount: BigNumber
+        vaultCount: BigNumber
+      }
+    >
+
+    initialize(overrides?: CallOverrides): Promise<void>
 
     liquidationCall(
       _vaultId: BigNumberish,
       _closeRatio: BigNumberish,
+      _sqrtSlippageTolerance: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>
 
-    openIsolatedVault(
-      _depositAmount: BigNumberish,
-      _assetId: BigNumberish,
+    liquidator(overrides?: CallOverrides): Promise<string>
+
+    openIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -3520,6 +3523,8 @@ export class Controller extends BaseContract {
         enableCallback: boolean
         data: BytesLike
       },
+      _depositAmount: BigNumberish,
+      _revertOnDupPair: boolean,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -3592,26 +3597,33 @@ export class Controller extends BaseContract {
     operator(overrides?: CallOverrides): Promise<string>
 
     reallocate(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean, BigNumber]>
 
-    setOperator(_newOperator: string, overrides?: CallOverrides): Promise<void>
-
-    settleUserBalance(
-      _vaultId: BigNumberish,
+    setAutoTransfer(
+      _isolatedVaultId: BigNumberish,
+      _autoTransferDisabled: boolean,
       overrides?: CallOverrides
     ): Promise<void>
 
+    setLiquidator(
+      _newLiquidator: string,
+      overrides?: CallOverrides
+    ): Promise<void>
+
+    setOperator(_newOperator: string, overrides?: CallOverrides): Promise<void>
+
     supplyToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>
 
     tradePerp(
       _vaultId: BigNumberish,
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -3670,24 +3682,25 @@ export class Controller extends BaseContract {
     ): Promise<void>
 
     updateAssetRiskParams(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _riskParams: {
         riskRatio: BigNumberish
         rangeSize: BigNumberish
         rebalanceThreshold: BigNumberish
       },
+      _changeToIsolatedMode: boolean,
       overrides?: CallOverrides
     ): Promise<void>
 
     updateIRMParams(
-      _assetId: BigNumberish,
-      _irmParams: {
+      _pairId: BigNumberish,
+      _stableIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
         slope2: BigNumberish
       },
-      _squartIRMParams: {
+      _underlyingIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
@@ -3697,21 +3710,25 @@ export class Controller extends BaseContract {
     ): Promise<void>
 
     updateMargin(
+      _pairGroupId: BigNumberish,
       _marginAmount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>
+
+    updateMarginOfIsolated(
+      _pairGroupId: BigNumberish,
+      _isolatedVaultId: BigNumberish,
+      _marginAmount: BigNumberish,
+      _moveFromMainVault: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>
 
     vaultCount(overrides?: CallOverrides): Promise<BigNumber>
 
-    withdrawProtocolRevenue(
-      _assetId: BigNumberish,
-      _amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>
-
     withdrawToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & {
@@ -3722,145 +3739,19 @@ export class Controller extends BaseContract {
   }
 
   filters: {
-    'AssetGroupInitialized(uint256,uint256[])'(
-      stableAssetId?: null,
-      assetIds?: null
-    ): TypedEventFilter<
-      [BigNumber, BigNumber[]],
-      { stableAssetId: BigNumber; assetIds: BigNumber[] }
-    >
-
-    AssetGroupInitialized(
-      stableAssetId?: null,
-      assetIds?: null
-    ): TypedEventFilter<
-      [BigNumber, BigNumber[]],
-      { stableAssetId: BigNumber; assetIds: BigNumber[] }
-    >
-
-    'AssetRiskParamsUpdated(uint256,tuple)'(
-      assetId?: null,
-      riskParams?: null
-    ): TypedEventFilter<
-      [
-        BigNumber,
-        [BigNumber, number, number] & {
-          riskRatio: BigNumber
-          rangeSize: number
-          rebalanceThreshold: number
-        }
-      ],
-      {
-        assetId: BigNumber
-        riskParams: [BigNumber, number, number] & {
-          riskRatio: BigNumber
-          rangeSize: number
-          rebalanceThreshold: number
-        }
-      }
-    >
-
-    AssetRiskParamsUpdated(
-      assetId?: null,
-      riskParams?: null
-    ): TypedEventFilter<
-      [
-        BigNumber,
-        [BigNumber, number, number] & {
-          riskRatio: BigNumber
-          rangeSize: number
-          rebalanceThreshold: number
-        }
-      ],
-      {
-        assetId: BigNumber
-        riskParams: [BigNumber, number, number] & {
-          riskRatio: BigNumber
-          rangeSize: number
-          rebalanceThreshold: number
-        }
-      }
-    >
-
-    'IRMParamsUpdated(uint256,tuple,tuple)'(
-      assetId?: null,
-      irmParams?: null,
-      squartIRMParams?: null
-    ): TypedEventFilter<
-      [
-        BigNumber,
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-      ],
-      {
-        assetId: BigNumber
-        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-        squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-      }
-    >
-
-    IRMParamsUpdated(
-      assetId?: null,
-      irmParams?: null,
-      squartIRMParams?: null
-    ): TypedEventFilter<
-      [
-        BigNumber,
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-      ],
-      {
-        assetId: BigNumber
-        irmParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-        squartIRMParams: [BigNumber, BigNumber, BigNumber, BigNumber] & {
-          baseRate: BigNumber
-          kinkRate: BigNumber
-          slope1: BigNumber
-          slope2: BigNumber
-        }
-      }
-    >
-
     'Initialized(uint8)'(
       version?: null
     ): TypedEventFilter<[number], { version: number }>
 
     Initialized(version?: null): TypedEventFilter<[number], { version: number }>
+
+    'LiquidatorUpdated(address)'(
+      liquidator?: null
+    ): TypedEventFilter<[string], { liquidator: string }>
+
+    LiquidatorUpdated(
+      liquidator?: null
+    ): TypedEventFilter<[string], { liquidator: string }>
 
     'OperatorUpdated(address)'(
       operator?: null
@@ -3869,82 +3760,72 @@ export class Controller extends BaseContract {
     OperatorUpdated(
       operator?: null
     ): TypedEventFilter<[string], { operator: string }>
-
-    'PairAdded(uint256,address)'(
-      assetId?: null,
-      _uniswapPool?: null
-    ): TypedEventFilter<
-      [BigNumber, string],
-      { assetId: BigNumber; _uniswapPool: string }
-    >
-
-    PairAdded(
-      assetId?: null,
-      _uniswapPool?: null
-    ): TypedEventFilter<
-      [BigNumber, string],
-      { assetId: BigNumber; _uniswapPool: string }
-    >
-
-    'ProtocolRevenueWithdrawn(uint256,uint256)'(
-      assetId?: null,
-      withdrawnProtocolFee?: null
-    ): TypedEventFilter<
-      [BigNumber, BigNumber],
-      { assetId: BigNumber; withdrawnProtocolFee: BigNumber }
-    >
-
-    ProtocolRevenueWithdrawn(
-      assetId?: null,
-      withdrawnProtocolFee?: null
-    ): TypedEventFilter<
-      [BigNumber, BigNumber],
-      { assetId: BigNumber; withdrawnProtocolFee: BigNumber }
-    >
-
-    'VaultCreated(uint256,address,bool)'(
-      vaultId?: null,
-      owner?: null,
-      isMainVault?: null
-    ): TypedEventFilter<
-      [BigNumber, string, boolean],
-      { vaultId: BigNumber; owner: string; isMainVault: boolean }
-    >
-
-    VaultCreated(
-      vaultId?: null,
-      owner?: null,
-      isMainVault?: null
-    ): TypedEventFilter<
-      [BigNumber, string, boolean],
-      { vaultId: BigNumber; owner: string; isMainVault: boolean }
-    >
   }
 
   estimateGas: {
+    addPair(
+      _addPairParam: {
+        pairGroupId: BigNumberish
+        uniswapPool: string
+        isIsolatedMode: boolean
+        assetRiskParams: {
+          riskRatio: BigNumberish
+          rangeSize: BigNumberish
+          rebalanceThreshold: BigNumberish
+        }
+        stableIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+        underlyingIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+      },
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>
+
+    addPairGroup(
+      _stableAssetAddress: string,
+      _marginRounder: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>
+
     allowedUniswapPools(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>
 
-    closeIsolatedVault(
-      _isolatedVaultId: BigNumberish,
-      _assetId: BigNumberish,
-      _closeParams: {
+    closeIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
+      _tradeParams: {
+        tradeAmount: BigNumberish
+        tradeAmountSqrt: BigNumberish
         lowerSqrtPrice: BigNumberish
         upperSqrtPrice: BigNumberish
         deadline: BigNumberish
+        enableCallback: boolean
+        data: BytesLike
       },
+      _withdrawAmount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
     getAsset(_id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>
 
-    getAssetGroup(overrides?: CallOverrides): Promise<BigNumber>
-
     getLatestAssetStatus(
       _id: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>
+
+    getPairGroup(
+      _id: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>
 
     getSqrtIndexPrice(
@@ -3957,11 +3838,6 @@ export class Controller extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>
 
-    getUtilizationRatio(
-      _tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>
-
     getVault(_id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>
 
     getVaultStatus(
@@ -3970,49 +3846,28 @@ export class Controller extends BaseContract {
     ): Promise<BigNumber>
 
     getVaultStatusWithAddress(
+      _pairGroupId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
+    globalData(overrides?: CallOverrides): Promise<BigNumber>
+
     initialize(
-      _stableAssetAddress: string,
-      _irmParams: {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      },
-      _addAssetParams: {
-        uniswapPool: string
-        assetRiskParams: {
-          riskRatio: BigNumberish
-          rangeSize: BigNumberish
-          rebalanceThreshold: BigNumberish
-        }
-        irmParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-        squartIRMParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-      }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
     liquidationCall(
       _vaultId: BigNumberish,
       _closeRatio: BigNumberish,
+      _sqrtSlippageTolerance: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
-    openIsolatedVault(
-      _depositAmount: BigNumberish,
-      _assetId: BigNumberish,
+    liquidator(overrides?: CallOverrides): Promise<BigNumber>
+
+    openIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -4022,13 +3877,26 @@ export class Controller extends BaseContract {
         enableCallback: boolean
         data: BytesLike
       },
+      _depositAmount: BigNumberish,
+      _revertOnDupPair: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
     operator(overrides?: CallOverrides): Promise<BigNumber>
 
     reallocate(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>
+
+    setAutoTransfer(
+      _isolatedVaultId: BigNumberish,
+      _autoTransferDisabled: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>
+
+    setLiquidator(
+      _newLiquidator: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
@@ -4037,20 +3905,16 @@ export class Controller extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
-    settleUserBalance(
-      _vaultId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>
-
     supplyToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
     tradePerp(
       _vaultId: BigNumberish,
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -4078,24 +3942,25 @@ export class Controller extends BaseContract {
     ): Promise<BigNumber>
 
     updateAssetRiskParams(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _riskParams: {
         riskRatio: BigNumberish
         rangeSize: BigNumberish
         rebalanceThreshold: BigNumberish
       },
+      _changeToIsolatedMode: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
     updateIRMParams(
-      _assetId: BigNumberish,
-      _irmParams: {
+      _pairId: BigNumberish,
+      _stableIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
         slope2: BigNumberish
       },
-      _squartIRMParams: {
+      _underlyingIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
@@ -4105,39 +3970,80 @@ export class Controller extends BaseContract {
     ): Promise<BigNumber>
 
     updateMargin(
+      _pairGroupId: BigNumberish,
       _marginAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>
+
+    updateMarginOfIsolated(
+      _pairGroupId: BigNumberish,
+      _isolatedVaultId: BigNumberish,
+      _marginAmount: BigNumberish,
+      _moveFromMainVault: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
 
     vaultCount(overrides?: CallOverrides): Promise<BigNumber>
 
-    withdrawProtocolRevenue(
-      _assetId: BigNumberish,
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>
-
     withdrawToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>
   }
 
   populateTransaction: {
+    addPair(
+      _addPairParam: {
+        pairGroupId: BigNumberish
+        uniswapPool: string
+        isIsolatedMode: boolean
+        assetRiskParams: {
+          riskRatio: BigNumberish
+          rangeSize: BigNumberish
+          rebalanceThreshold: BigNumberish
+        }
+        stableIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+        underlyingIrmParams: {
+          baseRate: BigNumberish
+          kinkRate: BigNumberish
+          slope1: BigNumberish
+          slope2: BigNumberish
+        }
+      },
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>
+
+    addPairGroup(
+      _stableAssetAddress: string,
+      _marginRounder: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>
+
     allowedUniswapPools(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>
 
-    closeIsolatedVault(
-      _isolatedVaultId: BigNumberish,
-      _assetId: BigNumberish,
-      _closeParams: {
+    closeIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
+      _tradeParams: {
+        tradeAmount: BigNumberish
+        tradeAmountSqrt: BigNumberish
         lowerSqrtPrice: BigNumberish
         upperSqrtPrice: BigNumberish
         deadline: BigNumberish
+        enableCallback: boolean
+        data: BytesLike
       },
+      _withdrawAmount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
@@ -4146,11 +4052,14 @@ export class Controller extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>
 
-    getAssetGroup(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
     getLatestAssetStatus(
       _id: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>
+
+    getPairGroup(
+      _id: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>
 
     getSqrtIndexPrice(
@@ -4159,11 +4068,6 @@ export class Controller extends BaseContract {
     ): Promise<PopulatedTransaction>
 
     getSqrtPrice(
-      _tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>
-
-    getUtilizationRatio(
       _tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>
@@ -4179,49 +4083,28 @@ export class Controller extends BaseContract {
     ): Promise<PopulatedTransaction>
 
     getVaultStatusWithAddress(
+      _pairGroupId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
+    globalData(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
     initialize(
-      _stableAssetAddress: string,
-      _irmParams: {
-        baseRate: BigNumberish
-        kinkRate: BigNumberish
-        slope1: BigNumberish
-        slope2: BigNumberish
-      },
-      _addAssetParams: {
-        uniswapPool: string
-        assetRiskParams: {
-          riskRatio: BigNumberish
-          rangeSize: BigNumberish
-          rebalanceThreshold: BigNumberish
-        }
-        irmParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-        squartIRMParams: {
-          baseRate: BigNumberish
-          kinkRate: BigNumberish
-          slope1: BigNumberish
-          slope2: BigNumberish
-        }
-      }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
     liquidationCall(
       _vaultId: BigNumberish,
       _closeRatio: BigNumberish,
+      _sqrtSlippageTolerance: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
-    openIsolatedVault(
-      _depositAmount: BigNumberish,
-      _assetId: BigNumberish,
+    liquidator(overrides?: CallOverrides): Promise<PopulatedTransaction>
+
+    openIsolatedPosition(
+      _vaultId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -4231,13 +4114,26 @@ export class Controller extends BaseContract {
         enableCallback: boolean
         data: BytesLike
       },
+      _depositAmount: BigNumberish,
+      _revertOnDupPair: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
     operator(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     reallocate(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>
+
+    setAutoTransfer(
+      _isolatedVaultId: BigNumberish,
+      _autoTransferDisabled: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>
+
+    setLiquidator(
+      _newLiquidator: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
@@ -4246,20 +4142,16 @@ export class Controller extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
-    settleUserBalance(
-      _vaultId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>
-
     supplyToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
     tradePerp(
       _vaultId: BigNumberish,
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _tradeParams: {
         tradeAmount: BigNumberish
         tradeAmountSqrt: BigNumberish
@@ -4287,24 +4179,25 @@ export class Controller extends BaseContract {
     ): Promise<PopulatedTransaction>
 
     updateAssetRiskParams(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _riskParams: {
         riskRatio: BigNumberish
         rangeSize: BigNumberish
         rebalanceThreshold: BigNumberish
       },
+      _changeToIsolatedMode: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
     updateIRMParams(
-      _assetId: BigNumberish,
-      _irmParams: {
+      _pairId: BigNumberish,
+      _stableIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
         slope2: BigNumberish
       },
-      _squartIRMParams: {
+      _underlyingIrmParams: {
         baseRate: BigNumberish
         kinkRate: BigNumberish
         slope1: BigNumberish
@@ -4314,21 +4207,25 @@ export class Controller extends BaseContract {
     ): Promise<PopulatedTransaction>
 
     updateMargin(
+      _pairGroupId: BigNumberish,
       _marginAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>
+
+    updateMarginOfIsolated(
+      _pairGroupId: BigNumberish,
+      _isolatedVaultId: BigNumberish,
+      _marginAmount: BigNumberish,
+      _moveFromMainVault: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
 
     vaultCount(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    withdrawProtocolRevenue(
-      _assetId: BigNumberish,
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>
-
     withdrawToken(
-      _assetId: BigNumberish,
+      _pairId: BigNumberish,
       _amount: BigNumberish,
+      _isStable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>
   }

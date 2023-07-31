@@ -5,19 +5,22 @@ import { usePrice } from './core/usePrice'
 import { queryPoolDayData } from './core/pool'
 import { toUnscaled } from '../utils/bn'
 import { Q96 } from '../constants'
+import { useAsset } from './core/useAsset'
 
 export function useUniswapPool(assetId: number) {
   const deltaTimestamps = useDeltaTimestamps()
   const blocks = useBlocksFromTimestamps(deltaTimestamps)
-  const price = usePrice(assetId)
+  const asset = useAsset(assetId)
+  const price = usePrice(1)
 
   return useQuery(
     ['uniswap_pool', assetId],
     async () => {
       if (!blocks.isSuccess) throw new Error('blocks not loaded')
+      if (!asset.isSuccess) throw new Error('asset not loaded')
       if (!price.isSuccess) throw new Error('price not loaded')
 
-      const poolAddress = '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443'
+      const poolAddress = asset.data.sqrtAssetStatus.uniswapPool
 
       const poolDayData = await queryPoolDayData(poolAddress, undefined)
       const poolDayData24 = await queryPoolDayData(
@@ -75,7 +78,7 @@ export function useUniswapPool(assetId: number) {
       }
     },
     {
-      enabled: blocks.isSuccess && price.isSuccess
+      enabled: blocks.isSuccess && asset.isSuccess && price.isSuccess
     }
   )
 }

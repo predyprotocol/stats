@@ -14,7 +14,7 @@ export function useOpenInterest() {
     {
       fetchPolicy: 'cache-first',
       variables: {
-        id: '0x68a154fb3e8ff6e4da10ecd54def25d9149ddbde-2'
+        id: '1'
       },
       pollInterval: 15000,
       client: predyArbitrum

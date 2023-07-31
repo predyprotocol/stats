@@ -56,9 +56,9 @@ export function sliceLatest24HFee(
       const ratio =
         lastItem.createdAt > item.createdAt
           ? Math.floor(
-              (1000 * (lastItem.createdAt - yesterday)) /
-                (lastItem.createdAt - item.createdAt)
-            )
+            (1000 * (lastItem.createdAt - yesterday)) /
+            (lastItem.createdAt - item.createdAt)
+          )
           : 1000
 
       items24h[items24h.length - 1] = {
