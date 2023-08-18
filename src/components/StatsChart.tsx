@@ -364,6 +364,14 @@ const Actor = ({
   )
 }
 
+const duneParams: { [key: number]: string } = {
+  1: 'poolAddress_t6c1ea=0xc31e54c7a869b9fcbecc14363cf510d1c41fa443&rangeMaxToken0PriceInToken1_n26d66=5000&rangeMinToken0PriceInToken1_n26d66=500&pair_id_n26d66=1',
+  2: 'poolAddress_t6c1ea=0x81c48D31365e6B526f6BBadC5c9aaFd822134863&rangeMaxToken0PriceInToken1_n26d66=2&rangeMinToken0PriceInToken1_n26d66=0.5&pair_id_n26d66=2',
+  4: 'poolAddress_t6c1ea=0x54b7fe035ac57892d68cba53dbb5156ce79058d6&rangeMaxToken0PriceInToken1_n26d66=0.01&rangeMinToken0PriceInToken1_n26d66=0.005&pair_id_n26d66=4',
+  5: 'poolAddress_t6c1ea=0x1557fdfda61f135baf1a1682eebaa086a0fcab6e&rangeMaxToken0PriceInToken1_n26d66=1.2&rangeMinToken0PriceInToken1_n26d66=0.8&pair_id_n26d66=5',
+  6: 'poolAddress_t6c1ea=0xc31e54c7a869b9fcbecc14363cf510d1c41fa443&rangeMaxToken0PriceInToken1_n26d66=5000&rangeMinToken0PriceInToken1_n26d66=500&pair_id_n26d66=6'
+}
+
 const StatsChart = ({ pairId }: { pairId: number }) => {
   const lendingSummary = useLendingPoolSummary(pairId)
   const uniswapSummary = useUniswapPool(pairId)
@@ -662,6 +670,21 @@ const StatsChart = ({ pairId }: { pairId: number }) => {
           </div>
         }
       />
+
+      {duneParams[pairId] ? (
+        <foreignObject width={380} height={310} x={800} y={370}>
+          <iframe
+            src={
+              'https://dune.com/embeds/2925006/4858040?' + duneParams[pairId]
+            }
+            height="100%"
+            width="100%"
+            title="liquidity distribution"
+          />
+        </foreignObject>
+      ) : (
+        <div></div>
+      )}
     </svg>
   )
 }
