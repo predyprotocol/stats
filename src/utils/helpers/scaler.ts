@@ -25,19 +25,24 @@ export class PairScalers {
   pairId: number
   pairGroupId: number
 
-  constructor(pairId: number) {
-    this.pairId = pairId
-    this.pairGroupId = ASSET_INFOS[pairId].pairGroupId
+  chainId: number
 
-    this.marginDecimals = MARGIN_INFOS[this.pairGroupId].decimals
-    this.underlyingDecimals = ASSET_INFOS[pairId].decimals
+  constructor(pairId: number, chainId: number) {
+    this.pairId = pairId
+    this.pairGroupId = ASSET_INFOS[chainId][pairId].pairGroupId
+    this.chainId = chainId
+
+    this.marginDecimals = MARGIN_INFOS[chainId][this.pairGroupId].decimals
+    this.underlyingDecimals = ASSET_INFOS[chainId][pairId].decimals
     this.squartDecimals = (this.marginDecimals + this.underlyingDecimals) / 2
     this.marginScaler = BigNumber.from(10).pow(this.marginDecimals)
     this.squartScaler = BigNumber.from(10).pow(this.squartDecimals)
     this.underlyingScaler = BigNumber.from(10).pow(this.underlyingDecimals)
 
-    this.marginFractionDecimals = MARGIN_INFOS[this.pairGroupId].fractionDigits
-    this.underlyingFractionDecimals = ASSET_INFOS[pairId].fractionDigits
+    this.marginFractionDecimals =
+      MARGIN_INFOS[chainId][this.pairGroupId].fractionDigits
+    this.underlyingFractionDecimals =
+      ASSET_INFOS[chainId][pairId].fractionDigits
     this.squartFractionDecimals = this.marginFractionDecimals
   }
 
@@ -60,7 +65,7 @@ export class PairScalers {
     return this.toAmountString(
       amount || ZERO,
       this.marginDecimals,
-      MARGIN_INFOS[this.pairGroupId].name,
+      MARGIN_INFOS[this.chainId][this.pairGroupId].name,
       options
     )
   }
@@ -68,8 +73,8 @@ export class PairScalers {
   toPriceString(amount: BigNumber | undefined) {
     return amount
       ? toPriceString(
-          toUnscaled(amount, this.marginDecimals)
-          //          ASSET_INFOS[this.pairId].fractionDigits
+          toUnscaled(amount, this.marginDecimals),
+          ASSET_INFOS[this.chainId][this.pairId].fractionDigits
         )
       : '-'
   }
@@ -78,7 +83,7 @@ export class PairScalers {
     return this.toAmountString(
       amount || ZERO,
       this.squartDecimals,
-      '√' + ASSET_INFOS[this.pairId].name,
+      '√' + ASSET_INFOS[this.chainId][this.pairId].name,
       options
     )
   }
@@ -87,7 +92,7 @@ export class PairScalers {
     return this.toAmountString(
       amount || ZERO,
       this.underlyingDecimals,
-      ASSET_INFOS[this.pairId].name,
+      ASSET_INFOS[this.chainId][this.pairId].name,
       options
     )
   }

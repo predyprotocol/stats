@@ -6,7 +6,6 @@ import {
 } from '../constants'
 import { TradeType } from '../constants/enum'
 import { toUnscaled } from './bn'
-import { MARGIN_INFOS } from '../constants/assets'
 
 export function tradeTypeToString(tradeType: TradeType) {
   if (tradeType === TradeType.LONG_CALL) return 'Long Call'
@@ -63,12 +62,4 @@ export function convertNotionalToString(value: number) {
   } else {
     return value.toFixed(2)
   }
-}
-
-export function roundMargin(pairGroupId: number, amount: BigNumber) {
-  const rounderScaler = BigNumber.from(10).pow(
-    MARGIN_INFOS[pairGroupId].rounder
-  )
-
-  return amount.div(rounderScaler).mul(rounderScaler)
 }

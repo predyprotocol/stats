@@ -43,16 +43,16 @@ function calculateIV(fee: BigNumber, squartValue: BigNumber) {
   return Math.sqrt(toUnscaled(feePerSqrtValue, feeDecimals))
 }
 
-export function useIV(pairId: number) {
+export function useIV(chainId: number, pairId: number) {
   const uniswapTradeFee24h = useUniswapTradeFee24H(
-    ASSET_INFOS[pairId].poolAddress,
+    ASSET_INFOS[chainId][pairId].poolAddress,
     false
   )
-  const asset = useAsset(pairId)
-  const price = usePrice(pairId)
+  const asset = useAsset(chainId, pairId)
+  const price = usePrice(chainId, pairId)
 
   return useQuery(
-    ['iv', pairId],
+    ['iv', chainId, pairId],
     async () => {
       if (!uniswapTradeFee24h.isSuccess)
         throw new Error('uniswapTradeFee24h not loaded')
@@ -62,7 +62,7 @@ export function useIV(pairId: number) {
       const fee0 = uniswapTradeFee24h.data.fee0
       const fee1 = uniswapTradeFee24h.data.fee1
 
-      const scalers = new PairScalers(pairId)
+      const scalers = new PairScalers(pairId, chainId)
 
       const fee = calculateFeeValue(
         fee0,

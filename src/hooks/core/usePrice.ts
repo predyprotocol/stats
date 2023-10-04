@@ -34,7 +34,7 @@ function computePrice(
     .div(marginScaler)
 }
 
-export function useCachedPrice(tokenId: number) {
+export function useCachedPrice(chainId: number, tokenId: number) {
   const [priceResult, setPriceResult] = useState<PriceResult>({
     sqrtPrice: ZERO,
     sqrtIndexPrice: ZERO,
@@ -42,7 +42,7 @@ export function useCachedPrice(tokenId: number) {
     indexPrice: ZERO
   })
 
-  const query = usePrice(tokenId)
+  const query = usePrice(chainId, tokenId)
 
   useEffect(() => {
     if (query.isSuccess) {
@@ -53,8 +53,8 @@ export function useCachedPrice(tokenId: number) {
   return priceResult
 }
 
-export function usePrice(assetId: number) {
-  const provider = useProvider()
+export function usePrice(chainId: number, assetId: number) {
+  const provider = useProvider(chainId)
 
   return useQuery<PriceResult>(
     ['price', assetId],
@@ -97,10 +97,11 @@ export function usePrice(assetId: number) {
         result.returnData[1]
       )[0]
 
-      const pairInfo = ASSET_INFOS[assetId]
+      const pairInfo = ASSET_INFOS[chainId][assetId]
 
       const assetDecimals = pairInfo.decimals
-      const marginDecimals = MARGIN_INFOS[pairInfo.pairGroupId].decimals
+      const marginDecimals =
+        MARGIN_INFOS[chainId][pairInfo.pairGroupId].decimals
 
       return {
         sqrtPrice,

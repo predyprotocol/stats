@@ -372,10 +372,16 @@ const duneParams: { [key: number]: string } = {
   6: 'poolAddress_t6c1ea=0xc31e54c7a869b9fcbecc14363cf510d1c41fa443&rangeMaxToken0PriceInToken1_n26d66=5000&rangeMinToken0PriceInToken1_n26d66=500&pair_id_n26d66=6'
 }
 
-const StatsChart = ({ pairId }: { pairId: number }) => {
-  const lendingSummary = useLendingPoolSummary(pairId)
-  const uniswapSummary = useUniswapPool(pairId)
-  const mothlyFee = useMonthlyPremium(pairId)
+const StatsChart = ({
+  chainId,
+  pairId
+}: {
+  chainId: number
+  pairId: number
+}) => {
+  const lendingSummary = useLendingPoolSummary(chainId, pairId)
+  const uniswapSummary = useUniswapPool(chainId, pairId)
+  const mothlyFee = useMonthlyPremium(chainId, pairId)
   const openInterest = useOpenInterest()
 
   return (

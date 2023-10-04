@@ -27,11 +27,11 @@ function getLendingSummary(
   }
 }
 
-export function useLendingPoolSummary(pairId: number) {
-  const asset = useAsset(pairId)
+export function useLendingPoolSummary(chainId: number, pairId: number) {
+  const asset = useAsset(chainId, pairId)
 
   return useQuery(
-    ['lending-pool-summary', pairId],
+    ['lending-pool-summary', chainId, pairId],
     async () => {
       if (!asset.isSuccess) throw new Error('asset not set')
 

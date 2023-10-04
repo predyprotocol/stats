@@ -4,17 +4,17 @@ import { usePrice } from './core/usePrice'
 import { toUnscaled } from '../utils/bn'
 import { useFeeDaily } from './core/useFeeDaily'
 
-export function useMonthlyPremium(pairId: number) {
+export function useMonthlyPremium(chainId: number, pairId: number) {
   // 30 days before
   const startTimestamp = Math.floor(
     (new Date().getTime() - 60 * 60 * 24 * 30 * 1000) / 1000
   )
 
   const lpRevenueDaily = useFeeDaily(pairId, startTimestamp)
-  const price = usePrice(pairId)
+  const price = usePrice(chainId, pairId)
 
   return useQuery(
-    ['monthly-premium', pairId],
+    ['monthly-premium', chainId, pairId],
     async () => {
       if (!lpRevenueDaily) throw new Error('provider not set')
       if (!price.isSuccess) throw new Error('price not set')

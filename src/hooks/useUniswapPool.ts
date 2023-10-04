@@ -7,12 +7,12 @@ import { toUnscaled } from '../utils/bn'
 import { useAsset } from './core/useAsset'
 import { useIV } from './core/useIV'
 
-export function useUniswapPool(assetId: number) {
+export function useUniswapPool(chainId: number, assetId: number) {
   const deltaTimestamps = useDeltaTimestamps()
   const blocks = useBlocksFromTimestamps(deltaTimestamps)
-  const asset = useAsset(assetId)
-  const price = usePrice(1)
-  const iv = useIV(assetId)
+  const asset = useAsset(chainId, assetId)
+  const price = usePrice(chainId, 1)
+  const iv = useIV(chainId, assetId)
 
   return useQuery(
     ['uniswap_pool', assetId],

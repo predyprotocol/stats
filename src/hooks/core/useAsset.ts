@@ -1,7 +1,6 @@
 import { BigNumber, ethers } from 'ethers'
 import { useQuery } from 'react-query'
 import { Controller, Controller__factory } from '../../typechain'
-import { useChainId } from '../network'
 import { ONE, ZERO } from '../../constants'
 import { IRMParams } from '../../utils/irm'
 import { useProvider } from './useProvider'
@@ -66,9 +65,8 @@ export type PairStatus = {
 }
 export type Asset = PairStatus
 
-export function useAsset(assetId: number) {
-  const provider = useProvider()
-  const chainId = useChainId()
+export function useAsset(chainId: number, assetId: number) {
+  const provider = useProvider(chainId)
 
   return useQuery<Asset>(
     ['asset', chainId, assetId],
@@ -189,9 +187,8 @@ export type AssetUtilizations = {
   }
 }
 
-export function useUtilizationRatio(pairId: number) {
-  const pair = useAsset(pairId)
-  const chainId = useChainId()
+export function useUtilizationRatio(chainId: number, pairId: number) {
+  const pair = useAsset(chainId, pairId)
 
   return useQuery<AssetUtilizations>(
     ['ur', chainId, pairId],

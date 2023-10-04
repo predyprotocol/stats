@@ -2,15 +2,17 @@ import React, { ReactNode } from 'react'
 import { ASSET_INFO, MARGIN_INFOS } from '../../constants/assets'
 
 export const PairBadge = ({
+  chainId,
   assetInfo,
   children,
   className
 }: {
+  chainId: number
   assetInfo: ASSET_INFO
   children?: ReactNode
   className?: string
 }) => {
-  const pairGroup = MARGIN_INFOS[assetInfo.pairGroupId]
+  const pairGroup = MARGIN_INFOS[chainId][assetInfo.pairGroupId]
 
   return (
     <div

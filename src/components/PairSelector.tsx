@@ -6,23 +6,29 @@ import { ASSET_INFOS, MARGIN_INFOS } from '../constants/assets'
 import { AiFillCaretDown } from 'react-icons/ai'
 
 export const PairSelector = ({
+  chainId,
   pairId,
   pairGroupId,
   onSelectPairId
 }: {
+  chainId: number
   pairId: number
   pairGroupId: number
   onSelectPairId: (pairId: number) => void
 }) => {
-  const pairGroup = MARGIN_INFOS[pairGroupId]
+  const pairGroup = MARGIN_INFOS[chainId][pairGroupId]
 
-  const pairInfos = pairGroup.pairs.map(pairId => ASSET_INFOS[pairId])
-  const assetInfo = ASSET_INFOS[pairId]
+  const pairInfos = pairGroup.pairs.map(pairId => ASSET_INFOS[chainId][pairId])
+  const assetInfo = ASSET_INFOS[chainId][pairId]
 
   return (
     <BasePopup
       titleContent={
-        <PairBadge assetInfo={assetInfo} className="cursor-pointer">
+        <PairBadge
+          chainId={chainId}
+          assetInfo={assetInfo}
+          className="cursor-pointer"
+        >
           <AiFillCaretDown />
         </PairBadge>
       }

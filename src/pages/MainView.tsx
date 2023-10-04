@@ -3,6 +3,7 @@ import StatsChart from '../components/StatsChart'
 import { PairSelector } from '../components/PairSelector'
 import defiLlamaIcon from '../assets/defillama-dark.svg'
 import duneIcon from '../assets/dune.svg'
+import { DEFAULT_CHAIN } from '../constants'
 
 const MainView = () => {
   const [pairId, setPairId] = useState(1)
@@ -13,6 +14,7 @@ const MainView = () => {
         <div className="max-w-[1360px]">
           <div className="flex justify-end items-center space-x-4">
             <PairSelector
+              chainId={DEFAULT_CHAIN}
               pairId={pairId}
               pairGroupId={1}
               onSelectPairId={setPairId}
@@ -34,7 +36,7 @@ const MainView = () => {
               </a>
             </div>
           </div>
-          <StatsChart pairId={pairId} />
+          <StatsChart chainId={DEFAULT_CHAIN} pairId={pairId} />
         </div>
       </div>
     </>

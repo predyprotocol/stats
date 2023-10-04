@@ -7,10 +7,10 @@ import { toUnscaled } from '../../utils/bn'
 import { useAsset } from './useAsset'
 import { useInterestGrowthTxs } from './useInterestGrowthTxes'
 
-export function useFee24h(assetId: number) {
+export function useFee24h(chainId: number, assetId: number) {
   const [, yesterday, ,] = useDeltaTimestamps()
-  const feesBetweenTxes = useFeesBetweenTxes(assetId)
-  const price = useCachedPrice(assetId)
+  const feesBetweenTxes = useFeesBetweenTxes(chainId, assetId)
+  const price = useCachedPrice(chainId, assetId)
 
   const items24h = useMemo(() => {
     if (feesBetweenTxes) {
@@ -74,10 +74,10 @@ export function sliceLatest24HFee(
   return items24h
 }
 
-export function useIV(assetId: number) {
-  const feesUSD = useFee24h(assetId)
-  const asset = useAsset(assetId)
-  const price = useCachedPrice(assetId)
+export function useIV(chainId: number, assetId: number) {
+  const feesUSD = useFee24h(chainId, assetId)
+  const asset = useAsset(chainId, assetId)
+  const price = useCachedPrice(chainId, assetId)
 
   if (asset.isSuccess) {
     const sqrtValue = toUnscaled(
@@ -98,9 +98,9 @@ export function useIV(assetId: number) {
   return 0
 }
 
-function useFeesBetweenTxes(assetId: number) {
+function useFeesBetweenTxes(chainId: number, assetId: number) {
   const interestGrowthTxs = useInterestGrowthTxs(assetId)
-  const asset = useAsset(assetId)
+  const asset = useAsset(chainId, assetId)
 
   if (interestGrowthTxs && asset.isSuccess) {
     const sqrtAssetStatus = asset.data.sqrtAssetStatus
